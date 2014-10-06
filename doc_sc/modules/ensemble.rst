@@ -24,51 +24,26 @@
 Bagging的元统计
 ======================
 
-在集成方法中，bagging是一类算法。其通过原训练数据的随机子集来构建若干基本黑盒统计，在将他们合并成为最终的预测。这些方法是在降低每一个基本统计的。 which build
-several instances of a black-box estimator on random subsets of the original
-training set and then aggregate their individual predictions to form a final
-prediction. These methods are used as a way to reduce the variance of a base
-estimator (e.g., a decision tree), by introducing randomization into its
-construction procedure and then making an ensemble out of it. In many cases,
-bagging methods constitute a very simple way to improve with respect to a
-single model, without making it necessary to adapt the underlying base
-algorithm. As they provide a way to reduce overfitting, bagging methods work
-best with strong and complex models (e.g., fully developed decision trees), in
-contrast with boosting methods which usually work best with weak models (e.g.,
-shallow decision trees).
+在集成方法中，bagging是一类算法。其通过原训练数据的随机子集来构建若干基本黑盒统计，在将他们合并成为最终的预测。这些方法通过在拟合中引入随机性来降低统计的方差。bagging方法相对简单，因为其对模型的优化并不需要了解底层的模型的具体信息此外它可以降低过度拟合的影响，因此对复杂的模型（如完全展开的决策树）时，有很好的作用。而增强方法则对弱的模型（如浅的决策树）有更好的表现。
 
-Bagging methods come in many flavours but mostly differ from each other by the
-way they draw random subsets of the training set:
+Bagging方法有若干区别，其中最显著的是他们产生随机性的方式：
 
-  * When random subsets of the dataset are drawn as random subsets of the
-    samples, then this algorithm is known as Pasting [B1999]_.
+  * Pasting方法通过选择随机选择子集来作为取样数据 [B1999]_ 。
 
-  * When samples are drawn with replacement, then the method is known as
-    Bagging [B1996]_.
+  * Bagging方法允许子集的样本存在重复取样 [B1996]_ 。
 
-  * When random subsets of the dataset are drawn as random subsets of
-    the features, then the method is known as Random Subspaces [H1998]_.
+  * 随机子空间（randome subsets）的方法选取样本的随机特征进行训练 [H1998]_ 。
 
-  * Finally, when base estimators are built on subsets of both samples and
-    features, then the method is known as Random Patches [LG2012]_.
+  * 随机区域（Random Patches）则选择样本与特征的随机子集进行训练 [LG2012]_ 。
 
-In scikit-learn, bagging methods are offered as a unified
-:class:`BaggingClassifier` meta-estimator  (resp. :class:`BaggingRegressor`),
-taking as input a user-specified base estimator along with parameters
-specifying the strategy to draw random subsets. In particular, ``max_samples``
-and ``max_features`` control the size of the subsets (in terms of samples and
-features), while ``bootstrap`` and ``bootstrap_features`` control whether
-samples and features are drawn with or without replacement. As an example, the
-snippet below illustrates how to instantiate a bagging ensemble of
-:class:`KNeighborsClassifier` base estimators, each built on random subsets of
-50% of the samples and 50% of the features.
+在scikit-learn中bagging方法是由统一的类 :class:`BaggingClassifier` 来进行分析的（以及 :class:`BaggingRegressor` ）。其输入变量是一个用户自定义的基本统计器（分类或回归），以及相对应的选取随机子集的方式。其中 ``max_samples`` 和 ``max_features`` 控制子集的大小（样本数和特征数）而 ``bootstrap`` 和 ``bootstrap_features`` 控制是否重复取样样本及特征。譬如下例展示如何采用bagging集成方法通过 :class:`KNeighborsClassifier` 统计来学习 50% 的样本和 50% 的特征。
 
     >>> from sklearn.ensemble import BaggingClassifier
     >>> from sklearn.neighbors import KNeighborsClassifier
     >>> bagging = BaggingClassifier(KNeighborsClassifier(),
     ...                             max_samples=0.5, max_features=0.5)
 
-.. topic:: Examples:
+.. topic:: 示例:
 
  * :ref:`example_ensemble_plot_bias_variance.py`
 
@@ -89,21 +64,12 @@ snippet below illustrates how to instantiate a bagging ensemble of
 
 .. _forest:
 
-Forests of randomized trees
+随机树与森林
 ===========================
 
-The :mod:`sklearn.ensemble` module includes two averaging algorithms based
-on randomized :ref:`decision trees <tree>`: the RandomForest algorithm
-and the Extra-Trees method. Both algorithms are perturb-and-combine
-techniques [B1998]_ specifically designed for trees. This means a diverse
-set of classifiers is created by introducing randomness in the classifier
-construction.  The prediction of the ensemble is given as the averaged
-prediction of the individual classifiers.
+:mod:`sklearn.ensemble` 提供两个平均算法基于随机化 :ref:`决策树 <tree>` ：随机森林（RandomForest）和极端树（Extra-Trees）。两种算法都是采用针对树的扰动-合并技术 [B1998]_ 。这是说在模型构造阶段通过随机性创立一系列不同的分类器。最终的预测是基于每一个独立预测的平均。
 
-As other classifiers, forest classifiers have to be fitted with two
-arrays: an array X of size ``[n_samples, n_features]`` holding the
-training samples, and an array Y of size ``[n_samples]`` holding the
-target values (class labels) for the training samples::
+如其他分类器一样，森林分类需要两个输入数列：一个大小为 ``[n_samples, n_features]`` 的训练数据X，和一个大小为 ``[n_samples]`` 的训练样本的类别数列Y::
 
     >>> from sklearn.ensemble import RandomForestClassifier
     >>> X = [[0, 0], [1, 1]]
@@ -111,41 +77,20 @@ target values (class labels) for the training samples::
     >>> clf = RandomForestClassifier(n_estimators=10)
     >>> clf = clf.fit(X, Y)
 
-Like :ref:`decision trees <tree>`, forests of trees also extend
-to :ref:`multi-output problems <tree_multioutput>`  (if Y is an array of size
-``[n_samples, n_outputs]``).
+如 :ref:`决策树 <tree>` 随机森林也可以延伸到 :ref:`多输出问题 <tree_multioutput>` （当Y是一个大小为 ``[n_samples, n_outputs]`` 的类别数列）。
 
-Random Forests
+
+随机森林
 --------------
 
-In random forests (see :class:`RandomForestClassifier` and
-:class:`RandomForestRegressor` classes), each tree in the ensemble is
-built from a sample drawn with replacement (i.e., a bootstrap sample)
-from the training set. In addition, when splitting a node during the
-construction of the tree, the split that is chosen is no longer the
-best split among all features. Instead, the split that is picked is the
-best split among a random subset of the features. As a result of this
-randomness, the bias of the forest usually slightly increases (with
-respect to the bias of a single non-random tree) but, due to averaging,
-its variance also decreases, usually more than compensating for the
-increase in bias, hence yielding an overall better model.
+在随机森林中（ :class:`RandomForestClassifier` 和 :class:`RandomForestRegressor` 类），每一个树在集合中都是基于一个可重复取样的子样本（如bootstrap取样）。此外，当在拟合中对于一个决策点，其不在是一个对于全部数据的最佳决策而是这个子样本所选取的特征的最佳决策。 由于这个随机性，因此随机森林的偏差会有所增大（相对一个没有随机的树）。但由于平均的作用，通常方差会减少，因此往往会平衡偏差的影响，进而产生更好的模型。
 
-In contrast to the original publication [B2001]_, the scikit-learn
-implementation combines classifiers by averaging their probabilistic
-prediction, instead of letting each classifier vote for a single class.
+对比初始的文献 [B2001]_ ，scikit-learn采用合并预测的概率，而不是每个分类器来对类别进行投票。
 
-Extremely Randomized Trees
+极端（随机）树
 --------------------------
 
-In extremely randomized trees (see :class:`ExtraTreesClassifier`
-and :class:`ExtraTreesRegressor` classes), randomness goes one step
-further in the way splits are computed. As in random forests, a random
-subset of candidate features is used, but instead of looking for the
-most discriminative thresholds, thresholds are drawn at random for each
-candidate feature and the best of these randomly-generated thresholds is
-picked as the splitting rule. This usually allows to reduce the variance
-of the model a bit more, at the expense of a slightly greater increase
-in bias::
+在极端树中（参见 :class:`ExtraTreesClassifier` 和 :class:`ExtraTreesRegressor` 类），随机性被进一步增强。对比随机森林选用随机的特征，并选择最优的分类，极端随机树采用随机的特征，并选择随机的决策阈值中最佳的一个作为分类决策。这通常可以进一步降低模型的方差，但是也进一步增加偏差::
 
     >>> from sklearn.cross_validation import cross_val_score
     >>> from sklearn.datasets import make_blobs
@@ -179,48 +124,24 @@ in bias::
     :align: center
     :scale: 75%
 
-Parameters
+参数
 ----------
 
-The main parameters to adjust when using these methods is ``n_estimators``
-and ``max_features``. The former is the number of trees in the forest. The
-larger the better, but also the longer it will take to compute. In
-addition, note that results will stop getting significantly better
-beyond a critical number of trees. The latter is the size of the random
-subsets of features to consider when splitting a node. The lower the
-greater the reduction of variance, but also the greater the increase in
-bias. Empirical good default values are ``max_features=n_features``
-for regression problems, and ``max_features=sqrt(n_features)`` for
-classification tasks (where ``n_features`` is the number of features
-in the data). The best results are also usually reached when setting
-``max_depth=None`` in combination with ``min_samples_split=1`` (i.e.,
-when fully developing the trees). Bear in mind though that these values
-are usually not optimal. The best parameter values should always be cross-
-validated. In addition, note that bootstrap samples are used by default
-in random forests (``bootstrap=True``) while the default strategy is to
-use the original dataset for building extra-trees (``bootstrap=False``).
+在采用这个模型时，最主要的参数是 ``n_estimators`` 和 ``max_features`` 。前者是森林中树的数目。数目越大越好，但是会导致更长的计算时间。此外，当超过一定数目的树后，结果将不会有更显著的提高。后者是子集中用以进行决策的特征数目。较低的数值可以较大的降低方差，但是带来偏差的增加。一个经验上较好的默认数值是在回归问题中 ``max_features=n_features`` ， 而在分类问题中 ``max_features=sqrt(n_features)`` （其中 ``n_features`` 是样本的特征总数）。最佳的结果往往是选择 ``max_depth=None`` 及 ``min_samples_split=1`` （如一个完整发展的树）。但是请记住这些数值并不是最优选择。一个最佳的参数需要经过交叉检验。而且注意在随机森林中，bootstrap取样是默认的（ ``bootstrap=True`` ）但是在极端树中却没有采用 (``bootstrap=False``)。
 
-Parallelization
+并行化
 ---------------
 
-Finally, this module also features the parallel construction of the trees
-and the parallel computation of the predictions through the ``n_jobs``
-parameter. If ``n_jobs=k`` then computations are partitioned into
-``k`` jobs, and run on ``k`` cores of the machine. If ``n_jobs=-1``
-then all cores available on the machine are used. Note that because of
-inter-process communication overhead, the speedup might not be linear
-(i.e., using ``k`` jobs will unfortunately not be ``k`` times as
-fast). Significant speedup can still be achieved though when building
-a large number of trees, or when building a single tree requires a fair
-amount of time (e.g., on large datasets).
+本模块可以通过设定参数 ``n_jobs``来并行构建树和计算预测。当 ``n_jobs=k`` 时，计算被分为
+``k`` 个工作，并在 ``k`` 计算处理器上进行。当 ``n_jobs=-1`` 时，所有空闲的处理器将被用以计算。注意由于内部信息沟通损耗，这个加速过程并不是与处理器数目成正比（例如采用 ``k`` 个处理器并不会快 ``k`` 倍）。当然当构建很多树的时候或者构建单个树很耗时（很大的数据）的时候，其增速还是相当客观的。
 
-.. topic:: Examples:
+.. topic:: 示例:
 
  * :ref:`example_ensemble_plot_forest_iris.py`
  * :ref:`example_ensemble_plot_forest_importances_faces.py`
  * :ref:`example_plot_multioutput_face_completion.py`
 
-.. topic:: References
+.. topic:: 参考
 
  .. [B2001] L. Breiman, "Random Forests", Machine Learning, 45(1), 5-32, 2001.
 
@@ -229,46 +150,32 @@ amount of time (e.g., on large datasets).
  .. [GEW2006] P. Geurts, D. Ernst., and L. Wehenkel, "Extremely randomized
    trees", Machine Learning, 63(1), 3-42, 2006.
 
-.. _random_forest_feature_importance:
+.. _random_forest_feature_impotance:
 
-Feature importance evaluation
+特征重要性评估
 -----------------------------
 
-The relative rank (i.e. depth) of a feature used as a decision node in a
-tree can be used to assess the relative importance of that feature with
-respect to the predictability of the target variable. Features used at
-the top of the tree are used contribute to the final prediction decision
-of a larger fraction of the input samples. The **expected fraction of
-the samples** they contribute to can thus be used as an estimate of the
-**relative importance of the features**.
+一个特征在决策树的相对排名（如深度）是由其在决策点的相对重要性决定。在树顶层的特征将影响以大部分的样本的最终预测。因此，这样一个 **预期的样本比例** 可以用来决定 **特征的相对重要性** 。
 
-By **averaging** those expected activity rates over several randomized
-trees one can **reduce the variance** of such an estimate and use it
-for feature selection.
+通过 **平均** 若干随机树的预期样本比例，我们使得该特征的 **方差降低** 。
 
-The following example shows a color-coded representation of the relative
-importances of each individual pixel for a face recognition task using
-a :class:`ExtraTreesClassifier` model.
+以下离子展示了面部预测的例子中每一个像素点的 :class:`ExtraTreesClassifier` 中的相对权重。
 
 .. figure:: ../auto_examples/ensemble/images/plot_forest_importances_faces_001.png
    :target: ../auto_examples/ensemble/plot_forest_importances_faces.html
    :align: center
    :scale: 75
 
-In practice those estimates are stored as an attribute named
-``feature_importances_`` on the fitted model. This is an array with shape
-``(n_features,)`` whose values are positive and sum to 1.0. The higher
-the value, the more important is the contribution of the matching feature
-to the prediction function.
+在实际应用中，这些存储在 ``feature_importances_`` ，骑士一个大小为 ``(n_features,)`` 的数列。其中值是正数，且和为1。越大的数对应其特征在机器学习中更重要的地位。
 
-.. topic:: Examples:
+.. topic:: 示例:
 
  * :ref:`example_ensemble_plot_forest_importances_faces.py`
  * :ref:`example_ensemble_plot_forest_importances.py`
 
 .. _random_trees_embedding:
 
-Totally Random Trees Embedding
+完全随机树集合
 ------------------------------
 
 :class:`RandomTreesEmbedding` implements an unsupervised transformation of the
