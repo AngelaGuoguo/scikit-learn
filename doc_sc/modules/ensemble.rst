@@ -178,22 +178,11 @@ Bagging方法有若干区别，其中最显著的是他们产生随机性的方�
 完全随机树集合
 ------------------------------
 
-:class:`RandomTreesEmbedding` implements an unsupervised transformation of the
-data.  Using a forest of completely random trees, :class:`RandomTreesEmbedding`
-encodes the data by the indices of the leaves a data point ends up in.  This
-index is then encoded in a one-of-K manner, leading to a high dimensional,
-sparse binary coding.
-This coding can be computed very efficiently and can then be used as a basis
-for other learning tasks.
-The size and sparsity of the code can be influenced by choosing the number of
-trees and the maximum depth per tree. For each tree in the ensemble, the coding
-contains one entry of one. The size of the coding is at most ``n_estimators * 2
-** max_depth``, the maximum number of leaves in the forest.
+:class:`RandomTreesEmbedding` 采用无监督的数据转换，是一个完全随机树的森林。其将每一个数据编码到每个叶枝点上。这个编码的是按照k中选一个的方式进行的，所以会产生一个高维度的稀疏二进制编码。而这个编码非常迅速，所以可以作为其他学习过程的基本。编码的大小和稀疏性是由树的数目和深度决定的。编码的最大数目是 ``n_estimators * 2 ** max_depth`` ，即森林中叶枝点的数目。
 
-As neighboring data points are more likely to lie within the same leaf of a tree,
-the transformation performs an implicit, non-parametric density estimation.
+当相邻的数据点会更加倾向于处在同一个叶枝点，编码转换会采用一个非参数的密度估计。
 
-.. topic:: Examples:
+.. topic:: 示例:
 
  * :ref:`example_ensemble_plot_random_forest_embedding.py`
 
@@ -212,44 +201,25 @@ the transformation performs an implicit, non-parametric density estimation.
 AdaBoost
 ========
 
-The module :mod:`sklearn.ensemble` includes the popular boosting algorithm
-AdaBoost, introduced in 1995 by Freund and Schapire [FS1995]_.
+:mod:`sklearn.ensemble` 包含了一个常用的增强方法， AdaBoost, 由 Freund and Schapire 在 1995年提出 [FS1995]_.
 
-The core principle of AdaBoost is to fit a sequence of weak learners (i.e.,
-models that are only slightly better than random guessing, such as small
-decision trees) on repeatedly modified versions of the data. The predictions
-from all of them are then combined through a weighted majority vote (or sum) to
-produce the final prediction. The data modifications at each so-called boosting
-iteration consist of applying weights :math:`w_1`, :math:`w_2`, ..., :math:`w_N`
-to each of the training samples. Initially, those weights are all set to
-:math:`w_i = 1/N`, so that the first step simply trains a weak learner on the
-original data. For each successive iteration, the sample weights are
-individually modified and the learning algorithm is reapplied to the reweighted
-data. At a given step, those training examples that were incorrectly predicted
-by the boosted model induced at the previous step have their weights increased,
-whereas the weights are decreased for those that were predicted correctly. As
-iterations proceed, examples that are difficult to predict receive
-ever-increasing influence. Each subsequent weak learner is thereby forced to
-concentrate on the examples that are missed by the previous ones in the sequence
-[HTF]_.
+AdaBoost的核心是去对不断重复的数据做拟合一系列弱的统计（如只比随机猜测好一点的模型，譬如小的决策树）。在预测时，是通过加权的多数分类（或者求和）来做出最后的分类选择。重复的数据在一个称之为增强的阶段获得不同的权重 :math:`w_1`, :math:`w_2`, ..., :math:`w_N` 作为N个训练样本。初始的时候这些权重均为 :math:`w_i = 1/N` ，所以第一步是在原始数据上拟合这些弱的统计。接下来的每步，样本的权重会更改，进而学习算法重新应用到这些样本上去。在每一步，此前错误预测的训练样本的权重将会增加，而正确预测的样本的权重将会减少。此后，那些难以预测的样本将逐步增加权重。即这些弱的统计量将会分配更多的权重到迁移那些预测错误的取样中（参见 [HTF]_ ）。
 
 .. figure:: ../auto_examples/ensemble/images/plot_adaboost_hastie_10_2_001.png
    :target: ../auto_examples/ensemble/plot_adaboost_hastie_10_2.html
    :align: center
    :scale: 75
 
-AdaBoost can be used both for classification and regression problems:
+AdaBoost 可以用到分类和回归问题中：
 
-  - For multi-class classification, :class:`AdaBoostClassifier` implements
-    AdaBoost-SAMME and AdaBoost-SAMME.R [ZZRH2009]_.
+  - 对于多分类问题， :class:`AdaBoostClassifier` 采用 AdaBoost-SAMME 和 AdaBoost-SAMME.R [ZZRH2009]_ 。
 
-  - For regression, :class:`AdaBoostRegressor` implements AdaBoost.R2 [D1997]_.
+  - 对于回归问题， :class:`AdaBoostRegressor` 采用 AdaBoost.R2 [D1997]_.
 
-Usage
+用法
 -----
 
-The following example shows how to fit an AdaBoost classifier with 100 weak
-learners::
+下例展示如何在 AdaBoost 分类器中应用100个弱统计 ::
 
     >>> from sklearn.cross_validation import cross_val_score
     >>> from sklearn.datasets import load_iris
@@ -261,16 +231,9 @@ learners::
     >>> scores.mean()                             # doctest: +ELLIPSIS
     0.9...
 
-The number of weak learners is controlled by the parameter ``n_estimators``. The
-``learning_rate`` parameter controls the contribution of the weak learners in
-the final combination. By default, weak learners are decision stumps. Different
-weak learners can be specified through the ``base_estimator`` parameter.
-The main parameters to tune to obtain good results are ``n_estimators`` and
-the complexity of the base estimators (e.g., its depth ``max_depth`` or
-minimum required number of samples at a leaf ``min_samples_leaf`` in case of
-decision trees).
+参数 ``n_estimators`` 调节弱统计的数目。参数 ``learning_rate`` 控制每个弱统计在最终的贡献。默认的设置是弱统计是一层决策树。不同的若统计可以通过 ``base_estimator`` 参数来控制。主要需要调节的参数是 ``n_estimators`` 和弱统计的复杂度参数（如在决策树中，深度 ``max_depth`` 或者叶节点上的最小取样数 ``min_samples_leaf`` ）。
 
-.. topic:: Examples:
+.. topic:: 示例:
 
  * :ref:`example_ensemble_plot_adaboost_hastie_10_2.py` compares the
    classification error of a decision stump, decision tree, and a boosted
@@ -302,41 +265,30 @@ decision trees).
 
 .. _gradient_boosting:
 
-Gradient Tree Boosting
+梯度树增强
 ======================
 
-`Gradient Tree Boosting <http://en.wikipedia.org/wiki/Gradient_boosting>`_
-or Gradient Boosted Regression Trees (GBRT) is a generalization
-of boosting to arbitrary
-differentiable loss functions. GBRT is an accurate and effective
-off-the-shelf procedure that can be used for both regression and
-classification problems.  Gradient Tree Boosting models are used in a
-variety of areas including Web search ranking and ecology.
+`梯度树增强 <http://en.wikipedia.org/wiki/Gradient_boosting>`_
+或者梯度增强回归树（Gradient Boosted Regression Trees GBRT）是一类将增强扩展到任意可微分成本函数。GBRT是一个可以用来回归和分类的准确且有效的现成方法。 其应用有网页检索排序和生态学。
 
-The advantages of GBRT are:
+GBRT的优势有：
 
-  + Natural handling of data of mixed type (= heterogeneous features)
+  + 对于不同类型的数据有统一处理 （混杂heterogeneous特征）
 
-  + Predictive power
+  + 预测的能力
 
-  + Robustness to outliers in output space (via robust loss functions)
+  + 对输出异常稳定（通过稳定的成本函数）
 
-The disadvantages of GBRT are:
+GBRT的劣势有：
 
-  + Scalability, due to the sequential nature of boosting it can
-    hardly be parallelized.
+  + 扩展性。由于是增强需要顺序操作，因此很难并行化。
 
-The module :mod:`sklearn.ensemble` provides methods
-for both classification and regression via gradient boosted regression
-trees.
+:mod:`sklearn.ensemble` 提供了分类和回归的GBRT。
 
-Classification
+分类
 ---------------
 
-:class:`GradientBoostingClassifier` supports both binary and multi-class
-classification.
-The following example shows how to fit a gradient boosting classifier
-with 100 decision stumps as weak learners::
+:class:`GradientBoostingClassifier` 支持二分类，或者多分类问题。下面的例子展示了利用100个弱统计的方法::
 
     >>> from sklearn.datasets import make_hastie_10_2
     >>> from sklearn.ensemble import GradientBoostingClassifier
@@ -350,26 +302,16 @@ with 100 decision stumps as weak learners::
     >>> clf.score(X_test, y_test)                 # doctest: +ELLIPSIS
     0.913...
 
-The number of weak learners (i.e. regression trees) is controlled by the parameter ``n_estimators``; :ref:`The size of each tree <gradient_boosting_tree_size>` can be controlled either by setting the tree depth via ``max_depth`` or by setting the number of leaf nodes via ``max_leaf_nodes``. The ``learning_rate`` is a hyper-parameter in the range (0.0, 1.0] that controls overfitting via :ref:`shrinkage <gradient_boosting_shrinkage>` .
+弱统计的数目（如回归树）是由系数 ``n_estimators`` 控制。 :ref:`树的大小 <gradient_boosting_tree_size>` 是通过设定树的深度 ``max_depth`` 或叶节点的最大数目 ``max_leaf_nodes`` 来确定。学习速率 ``learning_rate`` 是一个在 (0.0, 1.0] 间的超函数，用来控制过度拟合，参见（ :ref:`收缩 <gradient_boosting_shrinkage>` ）。
 
 .. note::
 
-   Classification with more than 2 classes requires the induction
-   of ``n_classes`` regression trees at each at each iteration,
-   thus, the total number of induced trees equals
-   ``n_classes * n_estimators``. For datasets with a large number
-   of classes we strongly recommend to use
-   :class:`RandomForestClassifier` as an alternative to :class:`GradientBoostingClassifier` .
+   对于分类超过两类的问题需要在回归树中引入 ``n_classes`` 。 因此总共树的数目为 ``n_classes * n_estimators`` 。对于一个有着很多分类的样本，我们强烈建议采用 :class:`RandomForestClassifier` 替代 :class:`GradientBoostingClassifier` 。
 
-Regression
+回归
 ----------
 
-:class:`GradientBoostingRegressor` supports a number of
-:ref:`different loss functions <gradient_boosting_loss>`
-for regression which can be specified via the argument
-``loss``; the default loss function for regression is least squares (``'ls'``).
-
-::
+:class:`GradientBoostingRegressor` 通过设定参数 ``loss`` 来选择 :ref:`不同的成本函数 <gradient_boosting_loss>` 来解决回归问题。默认的成本函数树 ``ls`` ，即最小二乘法::
 
     >>> import numpy as np
     >>> from sklearn.metrics import mean_squared_error
@@ -384,39 +326,24 @@ for regression which can be specified via the argument
     >>> mean_squared_error(y_test, est.predict(X_test))    # doctest: +ELLIPSIS
     5.00...
 
-The figure below shows the results of applying :class:`GradientBoostingRegressor`
-with least squares loss and 500 base learners to the Boston house price dataset
-(:func:`sklearn.datasets.load_boston`).
-The plot on the left shows the train and test error at each iteration.
-The train error at each iteration is stored in the
-:attr:`~GradientBoostingRegressor.train_score_` attribute
-of the gradient boosting model. The test error at each iterations can be obtained
-via the :meth:`~GradientBoostingRegressor.staged_predict` method which returns a
-generator that yields the predictions at each stage. Plots like these can be used
-to determine the optimal number of trees (i.e. ``n_estimators``) by early stopping.
-The plot on the right shows the feature importances which can be obtained via
-the ``feature_importances_`` property.
+下图展示了 :class:`GradientBoostingRegressor` 通过500个弱统计来分析Boston房价数据（ :func:`sklearn.datasets.load_boston` ）。作图展示了每一步的训练和测试误差。每一步的训练误差被存储在模型的 :attr:`~GradientBoostingRegressor.train_score_` 属性中。测试的误差可以通过 :meth:`~GradientBoostingRegressor.staged_predict` 方法来比较模型的预测。这个图可以用来寻找最佳树的数目（ ``n_estimators`` ）。右图展示了特征的重要性，其存储在 ``feature_importances_`` 。
 
 .. figure:: ../auto_examples/ensemble/images/plot_gradient_boosting_regression_001.png
    :target: ../auto_examples/ensemble/plot_gradient_boosting_regression.html
    :align: center
    :scale: 75
 
-.. topic:: Examples:
+.. topic:: 示例:
 
  * :ref:`example_ensemble_plot_gradient_boosting_regression.py`
  * :ref:`example_ensemble_plot_gradient_boosting_oob.py`
 
 .. _gradient_boosting_warm_start:
 
-Fitting additional weak-learners
+拟合额外的弱统计
 --------------------------------
 
-Both :class:`GradientBoostingRegressor` and :class:`GradientBoostingClassifier`
-support ``warm_start=True`` which allows you to add more estimators to an already
-fitted model.
-
-::
+:class:`GradientBoostingRegressor` 和 :class:`GradientBoostingClassifier` 都支持 ``warm_start=True`` 来添加进一步的模型到已拟合的模型中去::
 
   >>> _ = est.set_params(n_estimators=200, warm_start=True)  # set warm_start and new nr of trees
   >>> _ = est.fit(X_train, y_train) # fit additional 100 trees to est
@@ -425,238 +352,137 @@ fitted model.
 
 .. _gradient_boosting_tree_size:
 
-Controlling the tree size
+控制树的大小
 -------------------------
 
 The size of the regression tree base learners defines the level of variable
-interactions that can be captured by the gradient boosting model. In general,
-a tree of depth ``h`` can capture interactions of order ``h`` .
-There are two ways in which the size of the individual regression trees can
-be controlled.
+interactions that can be captured by the gradient boosting model. 
+回归树弱统计的数目决定了在梯度增强模型中变量间相互作用的机会。大致上一个深度为 ``h`` 的树可以刻画 ``h`` 阶的相互作用。此间，有两种方法可以控制树的大小。
 
-If you specify ``max_depth=h`` then complete binary trees
-of depth ``h`` will be grown. Such trees will have (at most) ``2**h`` leaf nodes
-and ``2**h - 1`` split nodes.
+如果设定 ``max_depth=h`` ，那么深度为 ``h`` 将会被拟合。这样的树将会有（最多） ``2**h`` 个叶节点，和 ``2**h - 1`` 个决策点。
 
-Alternatively, you can control the tree size by specifying the number of
-leaf nodes via the parameter ``max_leaf_nodes``. In this case,
-trees will be grown using best-first search where nodes with the highest improvement
-in impurity will be expanded first.
-A tree with ``max_leaf_nodes=k`` has ``k - 1`` split nodes and thus can
-model interactions of up to order ``max_leaf_nodes - 1`` .
+另一方面，你可以通过每个叶点的最大样本数 ``max_leaf_nodes`` ，来决定树的大小。这时，树是通过选择那些有着最大改善程度的决策进行扩展。当树 ``max_leaf_nodes=k`` 拥有 ``k - 1`` 个决策点时，模型的相互作用的阶数为： ``max_leaf_nodes - 1`` 。
 
-We found that ``max_leaf_nodes=k`` gives comparable results to ``max_depth=k-1``
-but is significantly faster to train at the expense of a slightly higher
-training error.
-The parameter ``max_leaf_nodes`` corresponds to the variable ``J`` in the
-chapter on gradient boosting in [F2001]_ and is related to the parameter
-``interaction.depth`` in R's gbm package where ``max_leaf_nodes == interaction.depth + 1`` .
+我们发现 ``max_leaf_nodes=k`` 和 ``max_depth=k-1`` 的结果相近，但是速度会有显著提升。参数 ``max_leaf_nodes`` 相当于在文献 [F2001]_ 中梯度增强部分的变量 ``J`` ，并与R的gbm包中的 ``interaction.depth`` 有如下关系： ``max_leaf_nodes == interaction.depth + 1`` 。
 
-Mathematical formulation
+数学基础
 -------------------------
 
-GBRT considers additive models of the following form:
+GBRT 采用如下的叠加模型：
 
   .. math::
 
     F(x) = \sum_{m=1}^{M} \gamma_m h_m(x)
 
-where :math:`h_m(x)` are the basis functions which are usually called
-*weak learners* in the context of boosting. Gradient Tree Boosting
-uses :ref:`decision trees <tree>` of fixed size as weak
-learners. Decision trees have a number of abilities that make them
-valuable for boosting, namely the ability to handle data of mixed type
-and the ability to model complex functions.
+其中 :math:`h_m(x)` 是基础模型，通常在增强方法中被称为 *弱统计 （weak learner）* 。梯度树增强采用固定大小的 :ref:`决策树 <tree>` 作为弱统计。决策树的优势在于可以处理不同类型的数据，和复杂的二模型。
 
-Similar to other boosting algorithms GBRT builds the additive model in
-a forward stagewise fashion:
+与其他增强算法类似，GBRT通过向前递进的方式构建模型：
 
   .. math::
 
     F_m(x) = F_{m-1}(x) + \gamma_m h_m(x)
 
-At each stage the decision tree :math:`h_m(x)` is chosen to
-minimize the loss function :math:`L` given the current model
-:math:`F_{m-1}` and its fit :math:`F_{m-1}(x_i)`
+在每一步，决策树 :math:`h_m(x)` 都会基于当前模型 :math:`F_{m-1}` 来最小化成本函数 :math:`L` 。
 
   .. math::
 
     F_m(x) = F_{m-1}(x) + \arg\min_{h} \sum_{i=1}^{n} L(y_i,
     F_{m-1}(x_i) - h(x))
 
-The initial model :math:`F_{0}` is problem specific, for least-squares
-regression one usually chooses the mean of the target values.
+初始模型 :math:`F_{0}` 是由问题决定的。如最小二乘法回归时，统产选择目标值的平均。
 
-.. note:: The initial model can also be specified via the ``init``
-          argument. The passed object has to implement ``fit`` and ``predict``.
+.. note:: 初始模型可以由参数 ``init`` 设置，该类需要具有函数 ``fit`` 和 ``predict`` 。
 
-Gradient Boosting attempts to solve this minimization problem
-numerically via steepest descent: The steepest descent direction is
-the negative gradient of the loss function evaluated at the current
-model :math:`F_{m-1}` which can be calculated for any differentiable
-loss function:
+梯度增强尝试通过梯度算法解决下面的最小化问题。最陡的方向通过对成本函数的微分得到:
 
   .. math::
 
     F_m(x) = F_{m-1}(x) + \gamma_m \sum_{i=1}^{n} \nabla_F L(y_i,
     F_{m-1}(x_i))
 
-Where the step length :math:`\gamma_m` is chosen using line search:
+其中步长 :math:`\gamma_m` 是通过线性搜索确定：
 
   .. math::
 
     \gamma_m = \arg\min_{\gamma} \sum_{i=1}^{n} L(y_i, F_{m-1}(x_i)
     - \gamma \frac{\partial L(y_i, F_{m-1}(x_i))}{\partial F_{m-1}(x_i)})
 
-The algorithms for regression and classification
-only differ in the concrete loss function used.
+回归和分类的差别仅在于成本函数的选择。
 
 .. _gradient_boosting_loss:
 
-Loss Functions
+成本函数
 ...............
 
-The following loss functions are supported and can be specified using
-the parameter ``loss``:
+下面的函数均可以通过参数 ``loss`` 进行选择：
 
-  * Regression
+  * 回归
 
-    * Least squares (``'ls'``): The natural choice for regression due
-      to its superior computational properties. The initial model is
-      given by the mean of the target values.
-    * Least absolute deviation (``'lad'``): A robust loss function for
-      regression. The initial model is given by the median of the
-      target values.
-    * Huber (``'huber'``): Another robust loss function that combines
-      least squares and least absolute deviation; use ``alpha`` to
-      control the sensitivity with regards to outliers (see [F2001]_ for
-      more details).
-    * Quantile (``'quantile'``): A loss function for quantile regression.
-      Use ``0 < alpha < 1`` to specify the quantile. This loss function
-      can be used to create prediction intervals
-      (see :ref:`example_ensemble_plot_gradient_boosting_quantile.py`).
+    * 最小二乘法 （Least squares ``'ls'`` ）：回归问题的自然选择，初始模型是目标值的平均。
+    * 最小绝对偏差（Least absolute deviation ``'lad'`` ）：一个稳定的成本函数，其初始模型是目标值的中值。
+    * Huber (``'huber'``)：另一类稳定的成本函数，结合了上述两种方式。通过 ``alpha`` 来控制对异常值的敏感度（参见 [F2001]_ ）。
+    * Quantile (``'quantile'``)：一类用来做分位数回归的成本函数，调节 ``0 < alpha < 1`` 来控制分位数。这个成本函数可以用来做预测区间（参见 :ref:`example_ensemble_plot_gradient_boosting_quantile.py` ）。
 
-  * Classification
+  * 分类
 
-    * Binomial deviance (``'deviance'``): The negative binomial
-      log-likelihood loss function for binary classification (provides
-      probability estimates).  The initial model is given by the
-      log odds-ratio.
-    * Multinomial deviance (``'deviance'``): The negative multinomial
-      log-likelihood loss function for multi-class classification with
-      ``n_classes`` mutually exclusive classes. It provides
-      probability estimates.  The initial model is given by the
-      prior probability of each class. At each iteration ``n_classes``
-      regression trees have to be constructed which makes GBRT rather
-      inefficient for data sets with a large number of classes.
-    * Exponential loss (``'exponential'``): The same loss function
-      as :class:`AdaBoostClassifier`. Less robust to mislabeled
-      examples than ``'deviance'``; can only be used for binary
-      classification.
+    * 二项式偏离 (``'deviance'``)：负的二项式对数概率成本函数是针对二元分类问题（提供概率估计）。初始模型提供相对概率分布。
+    * 多项式偏离 (``'deviance'``): 通过 ``n_classes`` 来控制多项式对数概率的成本函数。其提供对互斥分类的概率估计。初始模型是每个类型的先验概率。每一步 ``n_classes`` 个回归树将本构建。因此对于大数据，其效率较低。
+    * 指数成本 (``'exponential'``)：与 :class:`AdaBoostClassifier` 的成本函数一致。对于错误标记的取样不如二项式偏离稳定。只能被用于二元分类。
 
-Regularization
+复杂度控制
 ----------------
 
 .. _gradient_boosting_shrinkage:
 
-Shrinkage
+收缩
 ..........
 
-[F2001]_ proposed a simple regularization strategy that scales
-the contribution of each weak learner by a factor :math:`\nu`:
+[F2001]_ 提出一个简单的控制复杂度的方法，对每一个弱统计加以系数 :math:`\nu`:
 
 .. math::
 
     F_m(x) = F_{m-1}(x) + \nu \gamma_m h_m(x)
 
-The parameter :math:`\nu` is also called the **learning rate** because
-it scales the step length the the gradient descent procedure; it can
-be set via the ``learning_rate`` parameter.
+:math:`\nu` 被称为 **学习效率** ，因为它控制了每一步学习步长。它可以通过 ``learning_rate`` 来设定。
 
-The parameter ``learning_rate`` strongly interacts with the parameter
-``n_estimators``, the number of weak learners to fit. Smaller values
-of ``learning_rate`` require larger numbers of weak learners to maintain
-a constant training error. Empirical evidence suggests that small
-values of ``learning_rate`` favor better test error. [HTF2009]_
-recommend to set the learning rate to a small constant
-(e.g. ``learning_rate <= 0.1``) and choose ``n_estimators`` by early
-stopping. For a more detailed discussion of the interaction between
-``learning_rate`` and ``n_estimators`` see [R2007]_.
+``learning_rate`` 与若统计的数目参数 ``n_estimators`` 有很强相关。一个较小的 ``learning_rate`` 需要很多的弱统计来维持同样的误差。经验证据表明，小的 ``learning_rate`` 会有更高的准确度。 [HTF2009]_ 推荐设置 ``learning_rate <= 0.1`` 并逐步调节 ``n_estimators`` 关于``learning_rate`` 与 ``n_estimators`` 的相互影响，参见 [R2007]_ 。
 
-Subsampling
+子取样
 ............
 
-[F1999]_ proposed stochastic gradient boosting, which combines gradient
-boosting with bootstrap averaging (bagging). At each iteration
-the base classifier is trained on a fraction ``subsample`` of
-the available training data. The subsample is drawn without replacement.
-A typical value of ``subsample`` is 0.5.
+[F1999]_ 提出随机梯度增强，结合了bagging的思想。在每一步，弱统计都是应用到一部分子取样的数据上。这部分子取样不重复取样。一个通常的选择是 ``subsample=0.5`` 。
 
-The figure below illustrates the effect of shrinkage and subsampling
-on the goodness-of-fit of the model. We can clearly see that shrinkage
-outperforms no-shrinkage. Subsampling with shrinkage can further increase
-the accuracy of the model. Subsampling without shrinkage, on the other hand,
-does poorly.
+下图展示了收缩和子取样对模型拟合的影响。我们可以看到有收缩时结果更好，包括子取样后会更进一步提高准确度。没有收缩的子取样，却表现不佳。
 
 .. figure:: ../auto_examples/ensemble/images/plot_gradient_boosting_regularization_001.png
    :target: ../auto_examples/ensemble/plot_gradient_boosting_regularization.html
    :align: center
    :scale: 75
 
-Another strategy to reduce the variance is by subsampling the features
-analogous to the random splits in :class:`RandomForestClassifier` .
-The number of subsampled features can be controlled via the ``max_features``
-parameter.
+另一个降低方差的方法是类似 :class:`RandomForestClassifier` 对特征进行取样。这个取样数目可以由``max_features`` 进行控制。
 
-.. note:: Using a small ``max_features`` value can significantly decrease the runtime.
+.. note:: 采用较小的 ``max_features`` 可以显著降低计算时间。
 
-Stochastic gradient boosting allows to compute out-of-bag estimates of the
-test deviance by computing the improvement in deviance on the examples that are
-not included in the bootstrap sample (i.e. the out-of-bag examples).
-The improvements are stored in the attribute
-:attr:`~GradientBoostingRegressor.oob_improvement_`. ``oob_improvement_[i]`` holds
-the improvement in terms of the loss on the OOB samples if you add the i-th stage
-to the current predictions.
-Out-of-bag estimates can be used for model selection, for example to determine
-the optimal number of iterations. OOB estimates are usually very pessimistic thus
-we recommend to use cross-validation instead and only use OOB if cross-validation
-is too time consuming.
+随机梯度增强可以计算out-of-bag的测试样本偏差。这是通过计算不在bootstrap取样中的数据的提高来实现的。这个是存储在 :attr:`~GradientBoostingRegressor.oob_improvement_` 。 ``oob_improvement_[i]`` 记录着在第i步是加入所带来的提高。这个OOB的改善可以用来做模型选择，如选择最佳的计算步数。OOB的统计通常比较悲观，所以我们推荐当交叉检验不是很耗时时，使用交叉检验。
 
-.. topic:: Examples:
+.. topic:: 示例:
 
  * :ref:`example_ensemble_plot_gradient_boosting_regularization.py`
  * :ref:`example_ensemble_plot_gradient_boosting_oob.py`
 
-Interpretation
+阐释
 --------------
 
-Individual decision trees can be interpreted easily by simply
-visualizing the tree structure. Gradient boosting models, however,
-comprise hundreds of regression trees thus they cannot be easily
-interpreted by visual inspection of the individual trees. Fortunately,
-a number of techniques have been proposed to summarize and interpret
-gradient boosting models.
+每一个独立的决策树可以很容易图像展示和理解。梯度增强树则包含了上百个回归树，因此很难轻易的图像化。幸好，我们有一些技术来概括和理解梯度增强模型。
 
-Feature importance
+特征重要性
 ..................
 
-Often features do not contribute equally to predict the target
-response; in many situations the majority of the features are in fact
-irrelevant.
-When interpreting a model, the first question usually is: what are
-those important features and how do they contributing in predicting
-the target response?
+通常，特征对模型预测的贡献并不是相同的。大多数时候，大部分特征都是不相关的。当理解一个模型，第一个问题通常是：那些特征是重要的，他们是如何影响预测的。
 
-Individual decision trees intrinsically perform feature selection by selecting
-appropriate split points. This information can be used to measure the
-importance of each feature; the basic idea is: the more often a
-feature is used in the split points of a tree the more important that
-feature is. This notion of importance can be extended to decision tree
-ensembles by simply averaging the feature importance of each tree (see
-:ref:`random_forest_feature_importance` for more details).
+单独的决策树通过在每个决策点选择相应的特征。这个信息可以用来测量特征的重要性。其基本想法是：常见的特征则更为重要。将这个概念扩展到决策树集的化，我们可以简单的平均每一个特征在所有树中的重要性（参见 :ref:`random_forest_feature_importance` ）。
 
-The feature importance scores of a fit gradient boosting model can be
-accessed via the ``feature_importances_`` property::
+特征重要性评分存储在模型的 ``feature_importances_`` 变量之中::
 
     >>> from sklearn.datasets import make_hastie_10_2
     >>> from sklearn.ensemble import GradientBoostingClassifier
@@ -667,54 +493,31 @@ accessed via the ``feature_importances_`` property::
     >>> clf.feature_importances_  # doctest: +ELLIPSIS
     array([ 0.11,  0.1 ,  0.11,  ...
 
-.. topic:: Examples:
+.. topic:: 示例:
 
  * :ref:`example_ensemble_plot_gradient_boosting_regression.py`
 
 .. currentmodule:: sklearn.ensemble.partial_dependence
 
-Partial dependence
+部分依赖
 ..................
 
-Partial dependence plots (PDP) show the dependence between the target response
-and a set of 'target' features, marginalizing over the
-values of all other features (the 'complement' features).
-Intuitively, we can interpret the partial dependence as the expected
-target response [1]_ as a function of the 'target' features [2]_.
+部分依赖图 (PDP) 展示了目标响应与一系列‘目标’特征之间的关系。直觉上，我们可以理解部分依赖为目标相应 [1]_ 是‘目标’特征的函数 [2]_ 。
 
-Due to the limits of human perception the size of the target feature
-set must be small (usually, one or two) thus the target features are
-usually chosen among the most important features.
+由于人有限的理解力，目标特征需要比较小（通常只有一，两个），并且目标特征通常为最重要的特征。
 
-The Figure below shows four one-way and one two-way partial dependence plots
-for the California housing dataset:
+下图展示了四个单路和一个双路部分依赖图：
 
 .. figure:: ../auto_examples/ensemble/images/plot_partial_dependence_001.png
    :target: ../auto_examples/ensemble/plot_partial_dependence.html
    :align: center
    :scale: 70
 
-One-way PDPs tell us about the interaction between the target
-response and the target feature (e.g. linear, non-linear).
-The upper left plot in the above Figure shows the effect of the
-median income in a district on the median house price; we can
-clearly see a linear relationship among them.
+单路部分依赖图告诉我们目标相应和目标特征间的关系（如，线性，非线性）。在上图中，坐上展示了一个区域中中值收入对房价中值的影响。我们可以看到明显的线性关系。
 
-PDPs with two target features show the
-interactions among the two features. For example, the two-variable PDP in the
-above Figure shows the dependence of median house price on joint
-values of house age and avg. occupants per household. We can clearly
-see an interaction between the two features:
-For an avg. occupancy greater than two, the house price is nearly independent
-of the house age, whereas for values less than two there is a strong dependence
-on age.
+两个变量的部分依赖图展示了两个特征间的相互关系。例如上图中，房屋的中间价是房龄和平均入住数的函数。我们可以清晰的看到两个特征间的相互作用：如果平均入住数大于2，那么房屋的价格基本与房龄无关，然而当入住数小于2，那么有高相关。
 
-The module :mod:`partial_dependence` provides a convenience function
-:func:`~sklearn.ensemble.partial_dependence.plot_partial_dependence`
-to create one-way and two-way partial dependence plots. In the below example
-we show how to create a grid of partial dependence plots: two one-way
-PDPs for the features ``0`` and ``1`` and a two-way PDP between the two
-features::
+:mod:`partial_dependence` 提供了一个便捷的函数 :func:`~sklearn.ensemble.partial_dependence.plot_partial_dependence` 来绘制单路和双路部分依赖图。在下面的例子中，我们将绘制一系列部分依赖图，两个单路图和一个双路图::
 
     >>> from sklearn.datasets import make_hastie_10_2
     >>> from sklearn.ensemble import GradientBoostingClassifier
@@ -726,8 +529,7 @@ features::
     >>> features = [0, 1, (0, 1)]
     >>> fig, axs = plot_partial_dependence(clf, X, features) #doctest: +SKIP
 
-For multi-class models, you need to set the class label for which the
-PDPs should be created via the ``label`` argument::
+对于多分类模型，你需要通过 ``label`` 设置那些分类将被画出::
 
     >>> from sklearn.datasets import load_iris
     >>> iris = load_iris()
@@ -736,9 +538,7 @@ PDPs should be created via the ``label`` argument::
     >>> features = [3, 2, (3, 2)]
     >>> fig, axs = plot_partial_dependence(mc_clf, X, features, label=0) #doctest: +SKIP
 
-If you need the raw values of the partial dependence function rather
-than the plots you can use the
-:func:`~sklearn.ensemble.partial_dependence.partial_dependence` function::
+如果你需要原始的部分依赖函数而不是图，那么请选择函数 :func:`~sklearn.ensemble.partial_dependence.partial_dependence` ::
 
     >>> from sklearn.ensemble.partial_dependence import partial_dependence
 
@@ -748,25 +548,9 @@ than the plots you can use the
     >>> axes  # doctest: +ELLIPSIS
     [array([-1.62497054, -1.59201391, ...
 
-The function requires either the argument ``grid`` which specifies the
-values of the target features on which the partial dependence function
-should be evaluated or the argument ``X`` which is a convenience mode
-for automatically creating ``grid`` from the training data. If ``X``
-is given, the ``axes`` value returned by the function gives the axis
-for each target feature.
+这个函数需要 ``grid`` 来明确那些特征将被画出，或者便捷模式 ``X`` 来自动画出。如果给定 ``X`` ，那么将返回 ``axis`` 来代表每一个目标特征。
 
-For each value of the 'target' features in the ``grid`` the partial
-dependence function need to marginalize the predictions of a tree over
-all possible values of the 'complement' features. In decision trees
-this function can be evaluated efficiently without reference to the
-training data. For each grid point a weighted tree traversal is
-performed: if a split node involves a 'target' feature, the
-corresponding left or right branch is followed, otherwise both
-branches are followed, each branch is weighted by the fraction of
-training samples that entered that branch. Finally, the partial
-dependence is given by a weighted average of all visited leaves. For
-tree ensembles the results of each individual tree are again
-averaged.
+对于目标特征中的每一个值， ``grid`` 都需要里边所有其他特征的可能值。在决策树中，这个计算可以很快的完成，而不需要原始数据。每一个加权的树都将被遍历：如果一个节点需要‘目标’特征，那么其左右枝将被进一步探索，否则两枝都将被探索，每支的权重正比于进入该分支的样本数。最终，部分依赖图是探索分支的加权平均。对于树集，所有单独的树将被进一步平均。
 
 .. rubric:: 脚注
 
