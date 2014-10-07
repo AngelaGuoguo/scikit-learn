@@ -56,25 +56,24 @@
     <div class="span4 box">
     <h2 >
 
-:ref:`Classification <supervised-learning>`
+:ref:`分类 <supervised-learning>`
 
 .. raw:: html
 
     </h2>
     <blockquote>
-    <p>Identifying to which set of categories a new observation belong
-    to.</p>
+    <p>识别新样本所属的类别</p>
     <div class="box-links">
-    <strong>Applications</strong>: Spam detection, Image recognition.</br>
-    <strong>Algorithms</strong>:&nbsp;
+    <strong>应用</strong>: 垃圾邮件识别，图像认知。</br>
+    <strong>算法</strong>:&nbsp;
 
-:ref:`SVM<svm>`, :ref:`nearest neighbors<classification>`, :ref:`random forest<forest>`, ...
+:ref:`支持向量机 <svm>`, :ref:`最近邻 <classification>`, :ref:`随机森林 <forest>`, ...
 
 .. raw:: html
 
     <small class="float-right box-example-links">
 
-:ref:`Examples<general_examples>`
+:ref:`示例 <general_examples>`
 
 .. raw:: html
 
@@ -87,24 +86,24 @@
     <div class="span4 box">
     <h2>
 
-:ref:`Regression <supervised-learning>`
+:ref:`回归 <supervised-learning>`
 
 .. raw:: html
 
     </h2>
     <blockquote>
-    <p>Predicting a continuous value for a new example.</p>
+    <p>预测新样本的连续值</p>
     <div class="box-links">
-    <strong>Applications</strong>: Drug response, Stock prices.</br>
-    <strong>Algorithms</strong>:&nbsp;
+    <strong>应用</strong>: 医药疗效，股票价格。</br>
+    <strong>算法</strong>:&nbsp;
 
-:ref:`SVR<svm>`, :ref:`ridge regression<ridge_regression>`, :ref:`Lasso<lasso>`, ...
+:ref:`支持向量机 <svm>`, :ref:`岭回归 <ridge_regression>`, :ref:`Lasso<lasso>`, ...
 
 .. raw:: html
 
     <small class="float-right box-example-links">
 
-:ref:`Examples<general_examples>`
+:ref:`示例 <general_examples>`
 
 .. raw:: html
 
@@ -123,10 +122,10 @@
 
     </h2>
     <blockquote>
-    <p>Automatic grouping of similar objects into sets.</p>
+    <p>自动将相近样品划分到同样的类别</p>
     <div class="box-links">
-    <strong>Applications</strong>: Customer segmentation, Grouping experiment outcomes</br>
-    <strong>Algorithms</strong>:&nbsp;
+    <strong>应用</strong>: Customer segmentation, Grouping experiment outcomes</br>
+    <strong>算法</strong>:&nbsp;
 
 :ref:`k-Means<k_means>`, :ref:`spectral clustering<spectral_clustering>`, :ref:`mean-shift<mean_shift>`, ...
 
@@ -134,7 +133,7 @@
 
     <small class="float-right example-links">
 
-:ref:`Examples<cluster_examples>`
+:ref:`示例 <cluster_examples>`
 
 .. raw:: html
 
@@ -151,24 +150,24 @@
     <div class="span4 box">
     <h2>
 
-:ref:`Dimensionality reduction<decompositions>`
+:ref:`维度降低 <decompositions>`
 
 .. raw:: html
 
     </h2>
     <blockquote>
-    <p>Reducing the number of random variables to consider.</p>
+    <p>降低需要考虑的随机变量。</p>
     <div class="box-links">
-    <strong>Applications</strong>: Visualization, Increased efficiency</br>
-    <strong>Algorithms</strong>:&nbsp;
+    <strong>应用</strong>: 可视化，增加计算效率。</br>
+    <strong>算法</strong>:&nbsp;
 
-:ref:`PCA<PCA>`, :ref:`feature selection<feature_selection>`, :ref:`non-negative matrix factorization<NMF>`.
+:ref:`PCA<PCA>`, :ref:`特征选择 <feature_selection>`, :ref:`non-negative matrix factorization<NMF>`.
 
 .. raw:: html
 
     <small class="float-right example-links">
 
-:ref:`Examples<decomposition_examples>`
+:ref:`示例 <decomposition_examples>`
 
 .. raw:: html
 
@@ -198,7 +197,7 @@
 
     <small class="float-right example-links">
 
-:ref:`Examples<general_examples>`
+:ref:`示例 <general_examples>`
 
 .. raw:: html
 
@@ -230,7 +229,7 @@
     <span class="example-links">
     <small class="float-right example-links">
 
-:ref:`Examples<general_examples>`
+:ref:`示例 <general_examples>`
 
 .. raw:: html
 

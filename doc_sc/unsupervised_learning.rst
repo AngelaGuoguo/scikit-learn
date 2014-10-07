@@ -2,7 +2,7 @@
 
 .. _unsupervised-learning:
 
-Unsupervised learning
+非监督学习
 -----------------------
 
 .. toctree::
