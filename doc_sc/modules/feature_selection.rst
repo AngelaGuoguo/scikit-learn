@@ -3,33 +3,23 @@
 .. _feature_selection:
 
 =================
-Feature selection
+特征选择
 =================
 
 
-The classes in the :mod:`sklearn.feature_selection` module can be used
-for feature selection/dimensionality reduction on sample sets, either to
-improve estimators' accuracy scores or to boost their performance on very
-high-dimensional datasets.
+:mod:`sklearn.feature_selection` 模块可以对取样数据进行特征选择或者维度降低，并以此来增加准确度，或者提高运算效率。
 
 
-Removing features with low variance
+去除低方差的特征
 ===================================
 
-:class:`VarianceThreshold` is a simple baseline approach to feature selection.
-It removes all features whose variance doesn't meet some threshold.
-By default, it removes all zero-variance features,
-i.e. features that have the same value in all samples.
+:class:`VarianceThreshold` 是一个简单的基本操作。它将去除掉所有方差没有超过阈值的特征。默认情况，它将去除所有无方差的特征，如某一个特征在全部取样中的值相同。
 
-As an example, suppose that we have a dataset with boolean features,
-and we want to remove all features that are either one or zero (on or off)
-in more than 80% of the samples.
-Boolean features are Bernoulli random variables,
-and the variance of such variables is given by
+假设我们有一个数据只有布尔特征，我们希望移除那些超过80%都相同的特征。因为布尔特征是伯努利随机变量，因此其方差为：
 
 .. math:: \mathrm{Var}[X] = p(1 - p)
 
-so we can select using the threshold ``.8 * (1 - .8)``::
+因此我们可以选择阈值 ``.8 * (1 - .8)``::
 
   >>> from sklearn.feature_selection import VarianceThreshold
   >>> X = [[0, 0, 1], [0, 1, 0], [1, 0, 0], [0, 1, 1], [0, 1, 0], [0, 1, 1]]
@@ -42,32 +32,24 @@ so we can select using the threshold ``.8 * (1 - .8)``::
          [1, 0],
          [1, 1]])
 
-As expected, ``VarianceThreshold`` has removed the first column,
-which has a probability :math:`p = 5/6 > .8` of containing a one.
+正如所料， ``VarianceThreshold`` 将去除第一列，因为其包含了过多的0 。
 
-Univariate feature selection
+
+单变量特征选择
 ============================
 
-Univariate feature selection works by selecting the best features based on
-univariate statistical tests. It can be seen as a preprocessing step
-to an estimator. Scikit-learn exposes feature selection routines
-as objects that implement the ``transform`` method:
+单变量特征选择是基于单变量统计测试来选择最佳的特征。其可以视作是构建统计量的准备工作。Scikit-learn通过采用类函数 ``transform`` 来实现：
 
- * :class:`SelectKBest` removes all but the :math:`k` highest scoring features
+ * :class:`SelectKBest` 仅保留最好的 :math:`k` 个特征
 
- * :class:`SelectPercentile` removes all but a user-specified highest scoring
-   percentage of features
+ * :class:`SelectPercentile` 仅保留用户定义的最高百分比的特征
 
- * using common univariate statistical tests for each feature:
-   false positive rate :class:`SelectFpr`, false discovery rate
-   :class:`SelectFdr`, or family wise error :class:`SelectFwe`.
+ * 对于每个特征采用单变量统计：假阳性率 :class:`SelectFpr`, 错误发现率
+   :class:`SelectFdr`, 或者类别错误 :class:`SelectFwe`.
 
- * :class:`GenericUnivariateSelect` allows to perform univariate feature
-    selection with a configurable strategy. This allows to select the best
-    univariate selection strategy with hyper-parameter search estimator.
+ * :class:`GenericUnivariateSelect` 进行可调控的单变量特征选择。其通过超函数选择最佳的选择方案
 
-For instance, we can perform a :math:`\chi^2` test to the samples
-to retrieve only the two best features as follows:
+例如，我们可以通过 :math:`\chi^2` 检验来选择最好的两个特征：
 
   >>> from sklearn.datasets import load_iris
   >>> from sklearn.feature_selection import SelectKBest
@@ -80,44 +62,33 @@ to retrieve only the two best features as follows:
   >>> X_new.shape
   (150, 2)
 
-These objects take as input a scoring function that returns
-univariate p-values:
+这些类均需要一个返回p-value的评分函数：
 
- * For regression: :func:`f_regression`
+ * 对于回归： :func:`f_regression`
 
- * For classification: :func:`chi2` or :func:`f_classif`
+ * 对于分类: :func:`chi2` or :func:`f_classif`
 
-.. topic:: Feature selection with sparse data
+.. topic:: 稀疏数据的特征选择
 
-   If you use sparse data (i.e. data represented as sparse matrices),
-   only :func:`chi2` will deal with the data without making it dense.
+   如果数据是稀疏的（如数据由稀疏矩阵表示），那么只有 :func:`chi2` 可以处理该数据，让其还是稀疏矩阵。
 
 .. warning::
 
-    Beware not to use a regression scoring function with a classification
-    problem, you will get useless results.
+    注意不要对分类问题采用回归问题的评分函数
 
-.. topic:: Examples:
+.. topic:: 示例:
 
     :ref:`example_feature_selection_plot_feature_selection.py`
 
 
-Recursive feature elimination
+递归特征消除
 =============================
 
-Given an external estimator that assigns weights to features (e.g., the
-coefficients of a linear model), recursive feature elimination (:class:`RFE`)
-is to select features by recursively considering smaller and smaller sets of
-features.  First, the estimator is trained on the initial set of features and
-weights are assigned to each one of them. Then, features whose absolute weights
-are the smallest are pruned from the current set features. That procedure is
-recursively repeated on the pruned set until the desired number of features to
-select is eventually reached.
+递归特征消除（recursive feature elimination :class:`RFE` ）作为一个为特征附以权重的统计方法（如线性模型系数），其通过递归方式逐步考虑更小的特征集合来选择特征。首先测量初始的样本并赋予每一个特征权重，接着那些权重最小的特征被消除出去。这样的过程重复直到只留下需要数目的特征。
 
-:class:`RFECV` performs RFE in a cross-validation loop to find the optimal
-number of features.
+:class:`RFECV` 通过交叉检验来找到最合适的特征数目。
 
-.. topic:: Examples:
+.. topic:: 示例:
 
     * :ref:`example_feature_selection_plot_rfe_digits.py`: A recursive feature elimination example
       showing the relevance of pixels in a digit classification task.
@@ -129,22 +100,15 @@ number of features.
 
 .. _l1_feature_selection:
 
-L1-based feature selection
+基于L1的特征选择
 ==========================
 
 .. currentmodule:: sklearn
 
-Selecting non-zero coefficients
+选择非零系数
 ---------------------------------
 
-:ref:`Linear models <linear_model>` penalized with the L1 norm have
-sparse solutions: many of their estimated coefficients are zero. When the goal
-is to reduce the dimensionality of the data to use with another classifier,
-they expose a ``transform`` method to select the non-zero coefficient. In
-particular, sparse estimators useful for this purpose are the
-:class:`linear_model.Lasso` for regression, and
-of :class:`linear_model.LogisticRegression` and :class:`svm.LinearSVC`
-for classification::
+:ref:`线性模型 <linear_model>` 通过L1来惩罚无效的模型，因此很多系数为0。当目的是降低数据维数时，可以采用函数 ``transform`` 来选择那些非零系数。其中尤其是回归问题的 :class:`linear_model.Lasso` 和 :class:`linear_model.LogisticRegression` 以及分类问题的 :class:`svm.LinearSVC` ::
 
   >>> from sklearn.svm import LinearSVC
   >>> from sklearn.datasets import load_iris
@@ -156,11 +120,9 @@ for classification::
   >>> X_new.shape
   (150, 3)
 
-With SVMs and logistic-regression, the parameter C controls the sparsity:
-the smaller C the fewer features selected. With Lasso, the higher the
-alpha parameter, the fewer features selected.
+在SVM 和逻辑回归中，参数C控制疏散性。越小的C值，越少的特征被选择。在Lasso中，越大的alpha，越少的特征被选择。
 
-.. topic:: Examples:
+.. topic:: 示例:
 
     * :ref:`example_text_document_classification_20newsgroups.py`: Comparison
       of different algorithms for document classification including L1-based
@@ -168,65 +130,41 @@ alpha parameter, the fewer features selected.
 
 .. _compressive_sensing:
 
-.. topic:: **L1-recovery and compressive sensing**
+.. topic:: **L1-恢复和压缩传感**
 
-   For a good choice of alpha, the :ref:`lasso` can fully recover the
-   exact set of non-zero variables using only few observations, provided
-   certain specific conditions are met. In particular, the number of
-   samples should be "sufficiently large", or L1 models will perform at
-   random, where "sufficiently large" depends on the number of non-zero
-   coefficients, the logarithm of the number of features, the amount of
-   noise, the smallest absolute value of non-zero coefficients, and the
-   structure of the design matrix X. In addition, the design matrix must
-   display certain specific properties, such as not being too correlated.
+   一个合适的alpha可以使 :ref:`lasso` 在一定情况下只通过少量数据来完全重构所有非零数据。其需要满足样本足够多，或者L1模型是随机应用的。其中足够多是要依赖于非零的系数，特征数目的对数，噪声的大小，绝对值最小的非零系数，以及数据矩阵X的结构。其次X还需要满足一定性质，如不是非常相关。
 
-   There is no general rule to select an alpha parameter for recovery of
-   non-zero coefficients. It can by set by cross-validation
-   (:class:`LassoCV` or :class:`LassoLarsCV`), though this may lead to
-   under-penalized models: including a small number of non-relevant
-   variables is not detrimental to prediction score. BIC
-   (:class:`LassoLarsIC`) tends, on the opposite, to set high values of
-   alpha.
+   这里并没有一个选择alpha参数的一般标准。其可以通过交叉检验确定（ :class:`LassoCV` 或 :class:`LassoLarsCV` ），尽管这可能导致不完全惩罚的模型：有一小部分非相关的变量并不会对预测有不利的影响。BIC  (:class:`LassoLarsIC`) 设定非常高的 alpha。
 
-   **Reference** Richard G. Baraniuk "Compressive Sensing", IEEE Signal
+   **参考** Richard G. Baraniuk "Compressive Sensing", IEEE Signal
    Processing Magazine [120] July 2007
    http://dsp.rice.edu/files/cs/baraniukCSlecture07.pdf
 
 .. _randomized_l1:
 
-Randomized sparse models
+随机稀疏模型
 -------------------------
 
 .. currentmodule:: sklearn.linear_model
 
-The limitation of L1-based sparse models is that faced with a group of
-very correlated features, they will select only one. To mitigate this
-problem, it is possible to use randomization techniques, reestimating the
-sparse model many times perturbing the design matrix or sub-sampling data
-and counting how many times a given regressor is selected.
+基于L1的系数模型当村长高相关的特征是，其只会选择一个。为了减轻这个问题，随机性被引入其中。每次通过随机取样来扰动数据矩阵，并记录每次选择的特征。
 
-:class:`RandomizedLasso` implements this strategy for regression
-settings, using the Lasso, while :class:`RandomizedLogisticRegression` uses the
-logistic regression and is suitable for classification tasks.  To get a full
-path of stability scores you can use :func:`lasso_stability_path`.
+:class:`RandomizedLasso` 在Lasso中采用了上述策略。而 :class:`RandomizedLogisticRegression` 则对应逻辑回归，并适用于分类问题。如果要得到完整的稳定得分，可以使用函数 :func:`lasso_stability_path`.
 
-.. figure:: ../auto_examples/linear_model/linear_model.png
-   :target: ../auto_examples/linear_model/linear_model.html
+.. figure:: ../auto_examples/linear_model/images/plot_lasso_model_selection_001.png
+   :target: ../auto_examples/linear_model/plot_lasso_model_selection.html
    :align: center
    :scale: 60
 
-Note that for randomized sparse models to be more powerful than standard
-F statistics at detecting non-zero features, the ground truth model
-should be sparse, in other words, there should be only a small fraction
-of features non zero.
+注意，随机稀疏模型比标准的F检验更有效地发现非零特征，当仅有一小部分特征非零时。
 
-.. topic:: Examples:
+.. topic:: 示例:
 
    * :ref:`example_linear_model_plot_sparse_recovery.py`: An example
      comparing different feature selection approaches and discussing in
      which situation each approach is to be favored.
 
-.. topic:: References:
+.. topic:: 参考:
 
    * N. Meinshausen, P. Buhlmann, "Stability selection",
      Journal of the Royal Statistical Society, 72 (2010)
@@ -235,13 +173,10 @@ of features non zero.
    * F. Bach, "Model-Consistent Sparse Estimation through the Bootstrap"
      http://hal.inria.fr/hal-00354771/
 
-Tree-based feature selection
+基于树的特征选择
 ============================
 
-Tree-based estimators (see the :mod:`sklearn.tree` module and forest
-of trees in the :mod:`sklearn.ensemble` module) can be used to compute
-feature importances, which in turn can be used to discard irrelevant
-features::
+基于数的统计量（参见 :mod:`sklearn.tree` 和树的集合 :mod:`sklearn.ensemble` ）可以用来计算特征的重要性，并排除非相关特征::
 
   >>> from sklearn.ensemble import ExtraTreesClassifier
   >>> from sklearn.datasets import load_iris
@@ -265,12 +200,10 @@ features::
     * :ref:`example_ensemble_plot_forest_importances_faces.py`: example
       on face recognition data.
 
-Feature selection as part of a pipeline
+模型选择流水线
 =======================================
 
-Feature selection is usually used as a pre-processing step before doing
-the actual learning. The recommended way to do this in scikit-learn is
-to use a :class:`sklearn.pipeline.Pipeline`::
+特征选择通常是正式学习前的预处理。一个推荐的方式是通过 scikit-learn 的 :class:`sklearn.pipeline.Pipeline` 类来完成::
 
   clf = Pipeline([
     ('feature_selection', LinearSVC(penalty="l1")),
@@ -278,10 +211,4 @@ to use a :class:`sklearn.pipeline.Pipeline`::
   ])
   clf.fit(X, y)
 
-In this snippet we make use of a :class:`sklearn.svm.LinearSVC`
-to evaluate feature importances and select the most relevant features.
-Then, a :class:`sklearn.ensemble.RandomForestClassifier` is trained on the
-transformed output, i.e. using only relevant features. You can perform
-similar operations with the other feature selection methods and also
-classifiers that provide a way to evaluate feature importances of course.
-See the :class:`sklearn.pipeline.Pipeline` examples for more details.
+在上例中我们使用 :class:`sklearn.svm.LinearSVC` 来评估特征的重要性，并选择最重要的特征。进而， :class:`sklearn.ensemble.RandomForestClassifier` 对输出的特征进行拟合。你可以通过类似的方式来应用其他特征选择方法和分类器。更多信息参见 :class:`sklearn.pipeline.Pipeline` 。

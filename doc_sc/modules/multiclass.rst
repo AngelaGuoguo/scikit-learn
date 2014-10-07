@@ -2,69 +2,33 @@
 .. _multiclass:
 
 ====================================
-Multiclass and multilabel algorithms
+多类别和多标签算法
 ====================================
 
 .. currentmodule:: sklearn.multiclass
 
 .. warning::
-    All classifiers in scikit-learn do multiclass classification
-    out-of-the-box. You don't need to use the :mod:`sklearn.multiclass` module
-    unless you want to experiment with different multiclass strategies.
+    所有scikit-learn的分类器都可以直接进行多类别分类。你无需使用 :mod:`sklearn.multiclass` 模板。除非你打算尝试不同的分类算法。
 
-The :mod:`sklearn.multiclass` module implements *meta-estimators* to solve
-``multiclass`` and ``multilabel`` classification problems
-by decomposing such problems into binary classification problems.
+:mod:`sklearn.multiclass` 采用 *元统计* 来 ``多类别`` 和 ``多标签`` 分类问题简化为二元分类问题进行解决。
 
-  - **Multiclass classification** means a classification task with more than
-    two classes; e.g., classify a set of images of fruits which may be oranges,
-    apples, or pears. Multiclass classification makes the assumption that each
-    sample is assigned to one and only one label: a fruit can be either an
-    apple or a pear but not both at the same time.
+  - **多类别分类** 是指分类问题有两个以上的类别。例如将一系列水果的图片分为橘子，苹果或者梨。多类别分类假设每一个样本都会对应且仅对应一个类别。一个水果只可能是苹果或梨等，但不可以同时是两种。
 
-  - **Multilabel classification** assigns to each sample a set of target
-    labels. This can be thought as predicting properties of a data-point
-    that are not mutually exclusive, such as topics that are relevant for a
-    document. A text might be about any of religion, politics, finance or
-    education at the same time or none of these.
+  - **多标签分类** 将每个取样标记上若干个标签。这可以理解为预测一个数据的不互相排斥的若干性质，如一个文档的若干话题。一个文章可以同时有宗教，政治，金融或者教育等多个话题。
 
-  - **Multioutput-multiclass classification** and **multi-task classification**
-    means that a single estimator has to handle
-    several joint classification tasks. This is a generalization
-    of the multi-label classification task, where the set of classification
-    problem is restricted to binary classification, and of the multi-class
-    classification task. *The output format is a 2d numpy array or sparse 
-    matrix.*
+  - **多输出-多重分类问题** 和 **多任务分类** 代表一个统计模型要预测几个联合的分类任务。这是对多标签分类的推广，where the set of classification problem is restricted to binary classification, and of the multi-class classification task. *其输出是一个2维numpy数列，或者稀疏矩阵* 。
 
-    The set of labels can be different for each output variable.
-    For instance a sample could be assigned "pear" for an output variable that
-    takes possible values in a finite set of species such as "pear", "apple",
-    "orange" and "green" for a second output variable that takes possible values
-    in a finite set of colors such as "green", "red", "orange", "yellow"...
+    对于输出变量，其每个的类别集合可以是不同的。例如一个样本可以被标记为“梨”的同时，又被标记为“黄色”。
 
-    This means that any classifiers handling multi-output
-    multiclass or multi-task classification task
-    supports the multi-label classification task as a special case.
-    Multi-task classification is similar to the multi-output
-    classification task with different model formulations. For
-    more information, see the relevant estimator documentation.
+    这意味着任何一个能够处理多输出多类别或者多任务的分类器也支持作为特殊情况的多标签分类。多任务分类与多输出分类类似，只是有不同的模型公式。更多的信息请参考相关文献。
 
-All scikit-learn classifiers are capable of multiclass classification,
-but the meta-estimators offered by :mod:`sklearn.multiclass`
-permit changing the way they handle more than two classes
-because this may have an effect on classifier performance
-(either in terms of generalization error or required computational resources).
+所有的scikit-learn的分类器都支持多类别分类。但是 :mod:`sklearn.multiclass`  元分析允许改变其处理多类别的方式。由此会改变分类器的表现（误差或者计算效率）。
 
-Below is a summary of the classifiers supported by scikit-learn
-grouped by strategy; you don't need the meta-estimators in this class
-if you're using one of these unless you want custom multiclass behavior:
+以下是对scikit-learn支持的分类器的一个总结。如果你使用一下的分类器，那么你不需要使用原统计。
 
-  - Inherently multiclass: :ref:`Naive Bayes <naive_bayes>`,
-    :class:`sklearn.lda.LDA`,
-    :ref:`Decision Trees <tree>`, :ref:`Random Forests <forest>`,
-    :ref:`Nearest Neighbors <neighbors>`.
-  - One-Vs-One: :class:`sklearn.svm.SVC`.
-  - One-Vs-All: all linear models except :class:`sklearn.svm.SVC`.
+  - 继承性多类别 :ref:`朴素贝叶斯 <naive_bayes>` ， :class:`sklearn.lda.LDA` ，  :ref:`决策树 <tree>`, :ref:`随机森林 <forest>` ， :ref:`最近邻 <neighbors>` ，设定 "multi_class=multinomial" 的  :class:`sklearn.linear_model.LogisticRegression`.
+  - 一对一： :class:`sklearn.svm.SVC`.
+  - 一对多： 除了 :class:`sklearn.svm.SVC` 其他的线性模型。
 
 Some estimators also support multioutput-multiclass classification
 tasks :ref:`Decision Trees <tree>`, :ref:`Random Forests <forest>`,
@@ -72,23 +36,14 @@ tasks :ref:`Decision Trees <tree>`, :ref:`Random Forests <forest>`,
 
 .. warning::
 
-    At present, no metric in :mod:`sklearn.metrics`
-    supports the multioutput-multiclass classification task.
+    目前 :mod:`sklearn.metrics` 不支持多输出多类别分类。
 
-Multilabel classification format
+多标签分类的格式
 ================================
 
-In multilabel learning, the joint set of binary classification tasks is
-expressed with label binary indicator array: each sample is one row of a 2d
-array of shape (n_samples, n_classes) with binary values: the one, i.e. the non
-zero elements, corresponds to the subset of labels. An array such as
-``np.array([[1, 0, 0], [0, 1, 1], [0, 0, 0]])`` represents label 0 in the first
-sample, labels 1 and 2 in the second sample, and no labels in the third sample.
+在多标签分类中，其二元分类任务可以通过数组表示：每一个样本是大小为(n_samples, n_classes)的二维数列中的一行。一个数列 ``np.array([[1, 0, 0], [0, 1, 1], [0, 0, 0]])`` 表示第一个样本的标签为0，第二个样本的标签为1和2，第三个样本没有标签。
 
-Producing multilabel data as a list of sets of labels may be more intuitive.
-The transformer :class:`MultiLabelBinarizer <preprocessing.MultiLabelBinarizer>`
-will convert between a collection of collections of labels and the indicator
-format.
+创建一个多标签的数据更为直接：转换器 :class:`MultiLabelBinarizer <preprocessing.MultiLabelBinarizer>` 可以自动将标签转换为需要的格式。
 
   >>> from sklearn.datasets import make_multilabel_classification
   >>> from sklearn.preprocessing import MultiLabelBinarizer
@@ -103,23 +58,15 @@ format.
          [1, 1, 1, 1, 1],
          [1, 1, 1, 0, 0]])
 
-One-Vs-The-Rest
+一对多
 ===============
 
-This strategy, also known as **one-vs-all**, is implemented in
-:class:`OneVsRestClassifier`.  The strategy consists in fitting one classifier
-per class. For each classifier, the class is fitted against all the other
-classes. In addition to its computational efficiency (only `n_classes`
-classifiers are needed), one advantage of this approach is its
-interpretability. Since each class is represented by one and one classifier
-only, it is possible to gain knowledge about the class by inspecting its
-corresponding classifier. This is the most commonly used strategy and is a fair
-default choice.
+一对多策略是由 :class:`OneVsRestClassifier` 执行的。这个算法是对每一个分类拟合一次。对于每一个分类器，该分类将对余下的所有分类进行区别。除了其计算的高效（只需要 `n_classes` 个分类器），另一个优势在于容易理解。因为每一个类别都是由一个分类器所对应，所以理解分类器有助于理解该分类的特征。因此此策略被作为默认策略。
 
-Multiclass learning
+多类别学习
 -------------------
 
-Below is an example of multiclass learning using OvR::
+以下是一个采用一对多进行多类别学习的例子
 
   >>> from sklearn import datasets
   >>> from sklearn.multiclass import OneVsRestClassifier
@@ -135,42 +82,30 @@ Below is an example of multiclass learning using OvR::
          2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2,
          2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2])
 
-Multilabel learning
+多标签学习
 -------------------
 
-:class:`OneVsRestClassifier` also supports multilabel classification.
-To use this feature, feed the classifier an indicator matrix, in which cell
-[i, j] indicates the presence of label j in sample i.
-
+:class:`OneVsRestClassifier` 也支持多标签学习。在此，只需要提供给分类器一个标签矩阵，每一个值 [i, j] 代表i样本有jlabel。
 
 .. figure:: ../auto_examples/images/plot_multilabel_001.png
     :target: ../auto_examples/plot_multilabel.html
     :align: center
     :scale: 75%
 
-
-.. topic:: Examples:
+.. topic:: 示例:
 
     * :ref:`example_plot_multilabel.py`
 
 
-One-Vs-One
+一对一
 ==========
 
-:class:`OneVsOneClassifier` constructs one classifier per pair of classes.
-At prediction time, the class which received the most votes is selected.
-Since it requires to fit ``n_classes * (n_classes - 1) / 2`` classifiers,
-this method is usually slower than one-vs-the-rest, due to its
-O(n_classes^2) complexity. However, this method may be advantageous for
-algorithms such as kernel algorithms which don't scale well with
-``n_samples``. This is because each individual learning problem only involves
-a small subset of the data whereas, with one-vs-the-rest, the complete
-dataset is used ``n_classes`` times.
+:class:`OneVsOneClassifier` 构造每一个类别对另一个类别的分类器。在预测时，被选最多的分类将被选作最终分类。因为其需要拟合 ``n_classes * (n_classes - 1) / 2`` 分类器，所以它比一对多的分类器速度慢。然而这个方法当核心算法的计算时间不正比于 ``n_samples`` 时有一定的优势。因为每一个独立的学习问题只涉及一小部分的数据，而一对多需要考虑全部数据 ``n_classes`` 次。
 
-Multiclass learning
+多类别学习
 -------------------
 
-Below is an example of multiclass learning using OvO::
+以下是采用一对一方法的多类别学习::
 
   >>> from sklearn import datasets
   >>> from sklearn.multiclass import OneVsOneClassifier
@@ -187,46 +122,24 @@ Below is an example of multiclass learning using OvO::
          2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2])
 
 
-Error-Correcting Output-Codes
+纠错输出码
 =============================
 
-Output-code based strategies are fairly different from one-vs-the-rest and
-one-vs-one. With these strategies, each class is represented in a euclidean
-space, where each dimension can only be 0 or 1. Another way to put it is
-that each class is represented by a binary code (an array of 0 and 1). The
-matrix which keeps track of the location/code of each class is called the
-code book. The code size is the dimensionality of the aforementioned space.
-Intuitively, each class should be represented by a code as unique as
-possible and a good code book should be designed to optimize classification
-accuracy. In this implementation, we simply use a randomly-generated code
-book as advocated in [2]_ although more elaborate methods may be added in the
-future.
+基于输出码的算法与一对一和一对多的算法不同。在这个算法中，每一个类别被表示为一个欧几里得空间中的点，而每个维度只有0和1。另一个理解方式是，每一个类别是由一个二进制码表示（一系列0和1）。这个记录类别的矩阵被称之为编码本。其编码的大小是此前提到的空间的维度。直观上将，每一个类是是有一个编码标记，且编码本的目标是优化分类的准确性。在本实现中，我们采用 [2]_ 所提倡的随机生成编码本，尽管更好的方法会在日后添加。
 
-At fitting time, one binary classifier per bit in the code book is fitted.
-At prediction time, the classifiers are used to project new points in the
-class space and the class closest to the points is chosen.
+在你和的时候，一个二元分类器拟合编码本中的一个字节。在预测时，一个分类器用来预测样本在空间中的位置，而最近的分类将被采用。
 
-In :class:`OutputCodeClassifier`, the ``code_size`` attribute allows the user to
-control the number of classifiers which will be used. It is a percentage of the
-total number of classes.
+在 :class:`OutputCodeClassifier` 中 ``code_size`` 控制分类器的数目，其是总类别数的百分比。
 
-A number between 0 and 1 will require fewer classifiers than
-one-vs-the-rest. In theory, ``log2(n_classes) / n_classes`` is sufficient to
-represent each class unambiguously. However, in practice, it may not lead to
-good accuracy since ``log2(n_classes)`` is much smaller than n_classes.
+一个介于0和1之间的数对应少于一对多的分类器。在理论上， ``log2(n_classes) / n_classes`` 足以表示所有的类别，但实际应用上，其准确度不高。
 
-A number greater than than 1 will require more classifiers than
-one-vs-the-rest. In this case, some classifiers will in theory correct for
-the mistakes made by other classifiers, hence the name "error-correcting".
-In practice, however, this may not happen as classifier mistakes will
-typically be correlated. The error-correcting output codes have a similar
-effect to bagging.
+一个大于1的数值会产生比一对多更多的的分类器。在理论上有些分类器是在更正其他分类器带来的差错。，因此被称为“纠错”。在实际上，并不一定如此，因为错误并不是相关的。纠错输出码的效果与bagging类似。
 
 
-Multiclass learning
+多类别学习
 -------------------
 
-Below is an example of multiclass learning using Output-Codes::
+以下是一个通过输出码进行多类别学习的例子：
 
   >>> from sklearn import datasets
   >>> from sklearn.multiclass import OutputCodeClassifier
@@ -244,7 +157,7 @@ Below is an example of multiclass learning using Output-Codes::
          2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 1, 2, 2, 2,
          2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2])
 
-.. topic:: References:
+.. topic:: 参考:
 
     .. [1] "Solving multiclass learning problems via error-correcting output codes",
         Dietterich T., Bakiri G.,
