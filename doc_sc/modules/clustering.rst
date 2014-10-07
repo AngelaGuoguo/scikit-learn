@@ -1,36 +1,20 @@
 .. _clustering:
 
 ==========
-Clustering
+聚类
 ==========
 
-`Clustering <http://en.wikipedia.org/wiki/Cluster_analysis>`__ of
-unlabeled data can be performed with the module :mod:`sklearn.cluster`.
+`聚类 <http://en.wikipedia.org/wiki/Cluster_analysis>`__ 是通过 :mod:`sklearn.cluster` 对无分类数据进行学习。
 
-Each clustering algorithm comes in two variants: a class, that implements
-the ``fit`` method to learn the clusters on train data, and a function,
-that, given train data, returns an array of integer labels corresponding
-to the different clusters. For the class, the labels over the training
-data can be found in the ``labels_`` attribute.
+每一个聚类算法都有两个部分：一个包含 ``fit`` 函数的类，用来对训练数据进行分类和一个函数返回一个整数数列来标记不同的类别。对于类，其分类信息可以在 ``labels_`` 属性中找到。
 
 .. currentmodule:: sklearn.cluster
 
-.. topic:: Input data
+.. topic:: 输入数据
 
-    One important thing to note is that the algorithms implemented in
-    this module take different kinds of matrix as input.  On one hand,
-    :class:`MeanShift` and :class:`KMeans` take data matrices of shape
-    [n_samples, n_features]. These can be obtained from the classes in
-    the :mod:`sklearn.feature_extraction` module. On the other hand,
-    :class:`AffinityPropagation` and :class:`SpectralClustering` take
-    similarity matrices of shape [n_samples, n_samples].  These can be
-    obtained from the functions in the :mod:`sklearn.metrics.pairwise`
-    module. In other words, :class:`MeanShift` and :class:`KMeans` work
-    with points in a vector space, whereas :class:`AffinityPropagation`
-    and :class:`SpectralClustering` can work with arbitrary objects, as
-    long as a similarity measure exists for such objects.
+    需要注意的是本模块的算法采用不同类型的输入矩阵。一方面， :class:`MeanShift` 和 :class:`KMeans` 输入矩阵的大小为 [n_samples, n_features]。 这个可以通过模块 :mod:`sklearn.feature_extraction` 获得。另一方面， :class:`AffinityPropagation` 和 :class:`SpectralClustering` 需要大小为[n_samples, n_samples]的相近矩阵。这个可以通过 :mod:`sklearn.metrics.pairwise` 模块获得。换而言之， :class:`MeanShift` 和 :class:`KMeans` 将数据作为向量操作。而 :class:`AffinityPropagation` 和 :class:`SpectralClustering` 可以对任何类别操作，只要其相近测度存在。
 
-Overview of clustering methods
+聚类算法概述
 ===============================
 
 .. figure:: ../auto_examples/cluster/images/plot_cluster_comparison_001.png
@@ -38,78 +22,70 @@ Overview of clustering methods
    :align: center
    :scale: 50
 
-   A comparison of the clustering algorithms in scikit-learn
+   scikit-learn中的聚类算法比较
 
 
 .. list-table::
    :header-rows: 1
    :widths: 14 15 19 25 20
 
-   * - Method name
-     - Parameters
-     - Scalability
-     - Usecase
-     - Geometry (metric used)
+   * - 方法名称
+     - 参数
+     - 算法复杂度
+     - 应用
+     - 几何（测度）
 
-   * - :ref:`K-Means <k_means>`
-     - number of clusters
-     - Very large ``n_samples``, medium ``n_clusters`` with
-       :ref:`MiniBatch code <mini_batch_kmeans>`
-     - General-purpose, even cluster size, flat geometry, not too many clusters
-     - Distances between points
+   * - :ref:`K-平均 <k_means>`
+     - 类别数目
+     - 非常大的 ``n_samples`` ， 正常的 ``n_clusters`` （采用 :ref:`MiniBatch code <mini_batch_kmeans>` ）
+     - 一般应用，类别数目相近，分类数目不多，几何平面距离。
+     - 样本点间距离
 
-   * - :ref:`Affinity propagation <affinity_propagation>`
-     - damping, sample preference
-     - Not scalable with n_samples
-     - Many clusters, uneven cluster size, non-flat geometry
-     - Graph distance (e.g. nearest-neighbor graph)
+   * - :ref:`仿射传播 <affinity_propagation>`
+     - 阻尼，样本偏好
+     - 正比于 n_samples
+     - 大量分类，类别数目不均匀，非平几何
+     - 图距离（如最近邻图）
 
-   * - :ref:`Mean-shift <mean_shift>`
-     - bandwidth
-     - Not scalable with ``n_samples``
-     - Many clusters, uneven cluster size, non-flat geometry
-     - Distances between points
+   * - :ref:`平均偏移 <mean_shift>`
+     - 贷款
+     - 与 ``n_samples`` 无关
+     - 多类群，不均衡类别数目，非平几何
+     - 点间距离
 
-   * - :ref:`Spectral clustering <spectral_clustering>`
-     - number of clusters
-     - Medium ``n_samples``, small ``n_clusters``
-     - Few clusters, even cluster size, non-flat geometry
-     - Graph distance (e.g. nearest-neighbor graph)
+   * - :ref:`谱聚类 <spectral_clustering>`
+     - 类别数目
+     - 适量的 ``n_samples`` ，比较少的 ``n_clusters``
+     - 少量类别，类别数目均衡，非平几何
+     - 图距离（如最近邻图）
 
-   * - :ref:`Ward hierarchical clustering <hierarchical_clustering>`
-     - number of clusters
-     - Large ``n_samples`` and ``n_clusters``
-     - Many clusters, possibly connectivity constraints
-     - Distances between points
+   * - :ref:`Ward 等级聚类 <hierarchical_clustering>`
+     - 类别数目
+     - 大量数据 ``n_samples`` 和 ``n_clusters``
+     - 很多类别，可能的联通限制
+     - 点间距离
 
-   * - :ref:`Agglomerative clustering <hierarchical_clustering>`
-     - number of clusters, linkage type, distance
-     - Large ``n_samples`` and ``n_clusters``
-     - Many clusters, possibly connectivity constraints, non Euclidean
-       distances
-     - Any pairwise distance
+   * - :ref:`层级聚类 <hierarchical_clustering>`
+     - 类别数目，链接类型，距离
+     - 大的 ``n_samples`` 和 ``n_clusters``
+     - 很多类别，可能的联通限制，非平距离（非欧几何）
+     - 任何点对间距
 
    * - :ref:`DBSCAN <dbscan>`
-     - neighborhood size
-     - Very large ``n_samples``, medium ``n_clusters``
-     - Non-flat geometry, uneven cluster sizes
-     - Distances between nearest points
+     - 邻居大小
+     - 非常大 ``n_samples`` ，中等的 ``n_clusters``
+     - 非平几何，类别数目不均衡
+     - 最近邻点距离
 
-   * - :ref:`Gaussian mixtures <mixture>`
-     - many
-     - Not scalable
-     - Flat geometry, good for density estimation
-     - Mahalanobis distances to  centers
+   * - :ref:`高斯混合 <mixture>`
+     - 参见具体细节
+     - 不可扩展
+     - 平面几何，方便作密度分析
+     - 到中心的Mahalanobis距离
 
-Non-flat geometry clustering is useful when the clusters have a specific
-shape, i.e. a non-flat manifold, and the standard euclidean distance is
-not the right metric. This case arises in the two top rows of the figure
-above.
+非平几何聚类对于类别分布有着特别的形状时很有效，如非平流形，标准欧几里得距离并不适用。这种情况在上图的最上两行中有所展示。
 
-Gaussian mixture models, useful for clustering, are described in
-:ref:`another chapter of the documentation <mixture>` dedicated to
-mixture models. KMeans can be seen as a special case of Gaussian mixture
-model with equal covariance per component.
+高斯混合模型是聚类的有效方法，我们在 :ref:`前一章 <mixture>` 中具体解释。K-平均可以视作高斯混合模型的特例：每一个高斯分布的协变矩阵都相同。
 
 .. _k_means:
 
