@@ -65,7 +65,7 @@
      - 很多类别，可能的联通限制
      - 点间距离
 
-   * - :ref:`层级聚类 <hierarchical_clustering>`
+   * - :ref:`等级聚类 <hierarchical_clustering>`
      - 类别数目，链接类型，距离
      - 大的 ``n_samples`` 和 ``n_clusters``
      - 很多类别，可能的联通限制，非平距离（非欧几何）
@@ -89,103 +89,48 @@
 
 .. _k_means:
 
-K-means
+K-平均
 =======
 
-The :class:`KMeans` algorithm clusters data by trying to separate samples
-in n groups of equal variance, minimizing a criterion known as the
-`inertia <inertia>` or within-cluster sum-of-squares.
-This algorithm requires the number of clusters to be specified.
-It scales well to large number of samples and has been used
-across a large range of application areas in many different fields.
+:class:`KMeans` 算法将数据分为n组，每组的方差相同。这个过程通过最小化 `惯性 <inertia>` 也就是组内平方和来实现。这个算法需要给定组分数目。它可以很容易的扩展到大量样本，也被应用到众多领域。
 
-The k-means algorithm divides a set of :math:`N` samples :math:`X`
-into :math:`K` disjoint clusters :math:`C`,
-each described by the mean :math:`\mu_j` of the samples in the cluster.
-The means are commonly called the cluster "centroids";
-note that they are not, in general, points from :math:`X`,
-although they live in the same space.
-The K-means algorithm aims to choose centroids
-that minimise the *inertia*, or within-cluster sum of squared criterion:
+k-平均算法将 :math:`N` 个样本 :math:`X` 分配到 :math:`K` 不相接的类别 :math:`C` 中，每一个类别通过其中样本的平均值 :math:`\mu_j` 来表征。这些平均值通常成为类别的中心（"centroids"）。注意，它们通常并不是X中的数据点，尽管它们处在同一个空间。k-平均算法旨在选择中心来降低惯性::
 
 .. math:: \sum_{i=0}^{n}\min_{\mu_j \in C}(||x_j - \mu_i||^2)
 
-Inertia, or the within-cluster sum of squares criterion,
-can be recognized as a measure of how internally coherent clusters are.
-It suffers from various drawbacks:
+惯性可以被视作一个类别的一致性。但是其有如下缺点：
 
-- Inertia makes the assumption that clusters are convex and isotropic,
-  which is not always the case. It responds poorly to elongated clusters,
-  or manifolds with irregular shapes.
+- 惯性假设类别的数据是凸的，且各向同性。但有时并不如此，因此它对于拉长的类别或者形状不规则的形态表现不佳。
 
-- Inertia is not a normalized metric: we just know that lower values are
-  better and zero is optimal. But in very high-dimensional spaces, Euclidean
-  distances tend to become inflated
-  (this is an instance of the so-called "curse of dimensionality").
-  Running a dimensionality reduction algorithm such as `PCA <PCA>`
-  prior to k-means clustering can alleviate this problem
-  and speed up the computations.
+- 惯性不是一个归一化的标准。我们只是知道越低越好，零是最佳。但是在非常高维数据情况，距离会被夸大（所谓维数的诅咒）。因此事先采用维度降低算法，如 `PCA <PCA>` ，可以减轻这个问题，并提高k-平均的计算效率。
 
-K-means is often referred to as Lloyd's algorithm. In basic terms, the
-algorithm has three steps. The first step chooses the initial centroids, with
-the most basic method being to choose :math:`k` samples from the dataset
-:math:`X`. After initialization, K-means consists of looping between the
-two other steps. The first step assigns each sample to its nearest centroid.
-The second step creates new centroids by taking the mean value of all of the
-samples assigned to each previous centroid. The difference between the old
-and the new centroids are computed and the algorithm repeats these last two
-steps until this value is less than a threshold. In other words, it repeats
-until the centroids do not move significantly.
+K平均也被称为Lloyd算法。简单说，其包含三步：第一步选择初始中心，最基本方法是从样本 :math:`X` 中选择出 :math:`k` 个；这个初始步骤结束之后，算法不断的在后两步中重复，先是将所有样本划分到最近的类别中，第二部是计算每个类中样本的平均值作为新的中心。当旧的和新的中心的的变化小于一定阈值时，算法结束计算。换而言之，其结束时，中心不在明显变化。
 
 .. image:: ../auto_examples/cluster/images/plot_kmeans_digits_001.png
    :target: ../auto_examples/cluster/plot_kmeans_digits.html
    :align: right
    :scale: 35
 
-K-means is equivalent to the expectation-maximization algorithm
-with a small, all-equal, diagonal covariance matrix.
+k-平均算法等价于预期最大化算法当协变矩阵是全等，对角且非常小的特例。
 
-The algorithm can also be understood through the concept of `Voronoi diagrams
-<https://en.wikipedia.org/wiki/Voronoi_diagram>`_. First the Voronoi diagram of
-the points is calculated using the current centroids. Each segment in the
-Voronoi diagram becomes a separate cluster. Secondly, the centroids are updated
-to the mean of each segment. The algorithm then repeats this until a stopping
-criterion is fulfilled. Usually, the algorithm stops when the relative decrease
-in the objective function between iterations is less than the given tolerance
-value. This is not the case in this implementation: iteration stops when
-centroids move less than the tolerance.
+这个算法可以通过 `Voronoi图 <https://en.wikipedia.org/wiki/Voronoi_diagram>` 的概念来理解。首先Voronoi图的点对应于中心。每个Voronoi图块作为一个独立的类别。接着，中心按照图块的平均做更新。算法不断重复知道一个停止条件被满足，通常是当目标函数的相对减少低于一个给定阈值时。在本算法中，却不是这样，其是当中心移动小于某个阈值时。
 
-Given enough time, K-means will always converge, however this may be to a local
-minimum. This is highly dependent on the the initialization of the centroids.
-As a result, the computation is often done several times, with different
-initializations of the centroids. One method to help address this issue is the
-k-means++ initialization scheme, which has been implemented in scikit-learn
-(use the ``init='kmeans++'`` parameter). This initializes the centroids to be
-(generally) distant from each other, leading to provably better results than
-random initialization, as shown in the reference.
+给定充分时间，k-平均算法总会收敛。但这可能是个局域最优。这个很取决于中心的初始条件。因此，往往需要计算若干次不同初始条件的结果。另一个解决问题的方法是采用k-means++ 初始策略。在scikit-learn通过设置 ``init='kmeans++'`` 参数。其将初始各个中心的位置远离彼此，这意味着一个比随机初始化更好的结果（证明见参考）。
 
-A parameter can be given to allow K-means to be run in parallel, called
-``n_jobs``. Giving this parameter a positive value uses that many processors
-(default: 1). A value of -1 uses all available processors, with -2 using one
-less, and so on. Parallelization generally speeds up computation at the cost of
-memory (in this case, multiple copies of centroids need to be stored, one for
-each job).
+通过 ``n_jobs`` 参数可以进行并行k-平均计算。一个正数标志着处理器的数目（默认是1），而-1表示使用所有的处理器，-2表示少用一个，等等。平行计算在提高速度的同时需要更大的内存（因为多个中心在每个任务中存储一份拷贝）。
 
 .. warning::
 
-    The parallel version of K-Means is broken on OS X when numpy uses the
-    Accelerate Framework. This is expected behavior: Accelerate can be called
-    after a fork but you need to execv the subprocess with the Python binary
-    (which multiprocessing does not do under posix).
+    k-平均的并行版本在Mac上存在问题。问题在于numpy使用的 Accelerate Framework. This is expected behavior: Accelerate can be called after a fork but you need to execv the subprocess with the Python binary (which multiprocessing does not do under posix).
 
-K-means can be used for vector quantization. This is achieved using the
-transform method of a trained model of :class:`KMeans`.
 
-.. topic:: Examples:
+K-平均可以进行vector quantization。这是在 :class:`KMeans` 中对对拟合数据应用转换函数。
 
- * :ref:`example_cluster_plot_kmeans_digits.py`: Clustering handwritten digits
+.. topic:: 示例:
 
-.. topic:: References:
+ * :ref:`example_cluster_plot_kmeans_digits.py`: 数字识别
+
+.. topic:: 参考:
 
  * `"k-means++: The advantages of careful seeding"
    <http://ilpubs.stanford.edu:8090/778/1/2006-13.pdf>`_
@@ -195,31 +140,14 @@ transform method of a trained model of :class:`KMeans`.
 
 .. _mini_batch_kmeans:
 
-Mini Batch K-Means
+Mini Batch K-平均
 ------------------
 
-The :class:`MiniBatchKMeans` is a variant of the :class:`KMeans` algorithm
-which uses mini-batches to reduce the computation time, while still attempting
-to optimise the same objective function. Mini-batches are subsets of the input
-data, randomly sampled in each training iteration. These mini-batches
-drastically reduce the amount of computation required to converge to a local
-solution. In contrast to other algorithms that reduce the convergence time of
-k-means, mini-batch k-means produces results that are generally only slightly
-worse than the standard algorithm.
+:class:`MiniBatchKMeans` 是 :class:`KMeans` 的改进，通过mini-batches来减少计算时间。其仍然优化同样的目标函数。Mini-batches 是输入训练样本的随机抽取的子集。这个过程可以显著的降低k-平均收敛的计算时间。mini-batch k-平均算法的结果仅比标准算法略微差些。
 
-The algorithm iterates between two major steps, similar to vanilla k-means.
-In the first step, :math:`b` samples are drawn randomly from the dataset, to form
-a mini-batch. These are then assigned to the nearest centroid. In the second
-step, the centroids are updated. In contrast to k-means, this is done on a
-per-sample basis. For each sample in the mini-batch, the assigned centroid
-is updated by taking the streaming average of the sample and all previous
-samples assigned to that centroid. This has the effect of decreasing the
-rate of change for a centroid over time. These steps are performed until
-convergence or a predetermined number of iterations is reached.
+与直接的k-平均算法一样，这个算法在两个主要步骤中反复。第一步随机抽取 :math:`b`  个样本作为mini-batch，并分配到最近的中心。第二步，更新中心的位置。与k-平均不同之处在于更新是基于取样的。对于在mini-batch中的每一个取样，中心是基于这个取样，和此前结果的平均。因此中心变动的大小会随时间降低。这些步骤会重复直至收敛或者达到特定的步数。
 
-:class:`MiniBatchKMeans` converges faster than :class:`KMeans`, but the quality
-of the results is reduced. In practice this difference in quality can be quite
-small, as shown in the example and cited reference.
+:class:`MiniBatchKMeans` 比 :class:`KMeans` 收敛更快，但是精确度略低。但在实际应用中，这点不同可以被完全忽略（参见示例和参考）。
 
 .. figure:: ../auto_examples/cluster/images/plot_mini_batch_kmeans_001.png
    :target: ../auto_examples/cluster/plot_mini_batch_kmeans.html
@@ -227,7 +155,7 @@ small, as shown in the example and cited reference.
    :scale: 100
 
 
-.. topic:: Examples:
+.. topic:: 示例:
 
  * :ref:`example_cluster_plot_mini_batch_kmeans.py`: Comparison of KMeans and
    MiniBatchKMeans
@@ -238,7 +166,7 @@ small, as shown in the example and cited reference.
  * :ref:`example_cluster_plot_dict_face_patches.py`
 
 
-.. topic:: References:
+.. topic:: 文献:
 
  * `"Web Scale K-Means clustering"
    <http://www.eecs.tufts.edu/~dsculley/papers/fastkmeans.pdf>`_
@@ -247,17 +175,10 @@ small, as shown in the example and cited reference.
 
 .. _affinity_propagation:
 
-Affinity Propagation
+仿射传播
 ====================
 
-:class:`AffinityPropagation` creates clusters by sending messages between
-pairs of samples until convergence. A dataset is then described using a small
-number of exemplars, which are identified as those most representative of other
-samples. The messages sent between pairs represent the suitability for one
-sample to be the exemplar of the other, which is updated in response to the
-values from other pairs. This updating happens iteratively until convergence,
-at which point the final exemplars are chosen, and hence the final clustering
-is given.
+:class:`AffinityPropagation` 通过在样本间传递信息来达到分类的收敛。一个数据最终是靠少数的范例进行分类的，而范例是那些最具代表性的样本。样本间的信息表征一个样本更适合哪一个范例。这个更新的过程重复进行直至收敛，进而确定分类。
 
 .. figure:: ../auto_examples/cluster/images/plot_affinity_propagation_001.png
    :target: ../auto_examples/cluster/plot_affinity_propagation.html
@@ -265,20 +186,12 @@ is given.
    :scale: 50
 
 
-Affinity Propagation can be interesting as it chooses the number of
-clusters based on the data provided. For this purpose, the two important
-parameters are the *preference*, which controls how many exemplars are
-used, and the *damping factor*.
+仿射传播的意义在于其从样本数据中选择范例。因此有两个重要的参数需要调节，一个是范例的数目，另一个是 *阻尼系数* 。
 
-The main drawback of Affinity Propagation is its complexity. The
-algorithm has a time complexity of the order :math:`O(N^2 T)`, where :math:`N`
-is the number of samples and :math:`T` is the number of iterations until
-convergence. Further, the memory complexity is of the order
-:math:`O(N^2)` if a dense similarity matrix is used, but reducible if a
-sparse similarity matrix is used. This makes Affinity Propagation most
-appropriate for small to medium sized datasets.
+仿射传播的缺点在于其复杂度。这个算法的计算复杂度是 :math:`O(N^2 T)` ，其中 :math:`N` 是样本的数目，而 :math:`T` 是重复的步数。而且其空间复杂度是 
+:math:`O(N^2)` 如果矩阵是致密的。当然在稀疏矩阵的情况下问题可以得到缓解。这些问题使得仿射传播只适合中小型的数据。
 
-.. topic:: Examples:
+.. topic:: 示例:
 
  * :ref:`example_cluster_plot_affinity_propagation.py`: Affinity
    Propagation on a synthetic 2D datasets with 3 classes.
@@ -286,57 +199,38 @@ appropriate for small to medium sized datasets.
  * :ref:`example_applications_plot_stock_market.py` Affinity Propagation on
    Financial time series to find groups of companies
 
-**Algorithm description:**
-The messages sent between points belong to one of two categories. The first is
-the responsibility :math:`r(i, k)`,
-which is the accumulated evidence that sample :math:`k`
-should be the exemplar for sample :math:`i`.
-The second is the availability :math:`a(i, k)`
-which is the accumulated evidence that sample :math:`i`
-should choose sample :math:`k` to be its exemplar,
-and considers the values for all other samples that :math:`k` should
-be an exemplar. In this way, exemplars are chosen by samples if they are (1)
-similar enough to many samples and (2) chosen by many samples to be
-representative of themselves.
+**算法**
+数据点间相互传递的信息分为两类。第一个是“责任” :math:`r(i, k)` ，一个样本 :math:`k` 应该成为样本 :math:`i` 示例的累积证据。第二个是“容量” :math:`a(i, k)` ，一个样本 :math:`i` 可以选择样本 :math:`k` 作为其范例的累积证据。在这基础上，一个样本被选为示例需要满足以下两点： (1) 和其他样本相似 (2) 被其他样本选作示例。
 
-More formally, the responsibility of a sample :math:`k`
-to be the exemplar of sample :math:`i` is given by:
+
+更正是的说，样本 :math:`k` 作为样本 :math:`i` 范例的责任是：
 
 .. math::
 
     r(i, k) \leftarrow s(i, k) - max [ a(i, \acute{k}) + s(i, \acute{k}) \forall \acute{k} \neq k ]
 
-Where :math:`s(i, k)` is the similarity between samples :math:`i` and :math:`k`.
-The availability of sample :math:`k`
-to be the exemplar of sample :math:`i` is given by:
+其中 :math:`s(i, k)` 是样本 :math:`i` 和 :math:`k` 间的相似度。样本 :math:`k` 成为样本 :math:`i` 的容量是：
 
 .. math::
 
     a(i, k) \leftarrow min [0, r(k, k) + \sum_{\acute{i}~s.t.~\acute{i} \notin \{i, k\}}{r(\acute{i}, k)}]
 
-To begin with, all values for :math:`r` and :math:`a` are set to zero,
-and the calculation of each iterates until convergence.
+起始时，所有的 :math:`r` 和 :math:`a` 都是0。之后不断重复知道收敛。
 
 .. _mean_shift:
 
-Mean Shift
+平均偏移
 ==========
-:class:`MeanShift` clustering aims to discover *blobs* in a smooth density of
-samples. It is a centroid based algorithm, which works by updating candidates
-for centroids to be the mean of the points within a given region. These
-candidates are then filtered in a
-post-processing stage to eliminate near-duplicates to form the final set of
-centroids.
+:class:`MeanShift` 旨在发现样本分布中的结点。其是一个基于中心的算法：更新属于中心的样本，在基于样本更新中心的位置。在后期需要过滤样本来去除重复的样本。
 
-Given a candidate centroid :math:`x_i` for iteration :math:`t`, the candidate
-is updated according to the following equation:
+给定在第 :math:`t` 步的一个候选中心 :math:`x_i` ，其根据如下公式进行更新：
 
 .. math::
 
     x_i^{t+1} = x_i^t + m(x_i^t)
 
-Where :math:`N(x_i)` is the neighborhood of samples within a given distance
-around :math:`x_i` and :math:`m` is the *mean shift* vector that is computed
+其中 :math:`m` 是每一个中心的平均偏移向量，来最大的增加点的密度。其计算方法如下： is the neighborhood of samples within a given distance
+around  and :math:`m` is the *mean shift* vector that is computed
 for each centroid that
 points towards a region of the maximum increase in the density of points. This
 is computed using the following equation, effectively updating a centroid to be
@@ -346,19 +240,13 @@ the mean of the samples within its neighborhood:
 
     m(x_i) = \frac{\sum_{x_j \in N(x_i)}K(x_j - x_i)x_j}{\sum_{x_j \in N(x_i)}K(x_j - x_i)}
 
-The algorithm automatically sets the number of clusters, instead of relying on a
-parameter ``bandwidth``, which dictates the size of the region to search through.
-This parameter can be set manually, but can be estimated using the provided
-``estimate_bandwidth`` function, which is called if the bandwidth is not set.
+其中 :math:`N(x_i)` 是距样本 :math:`x_i` 一定范围内的邻居数目。这个过程等效于将中心更新为近邻的平均。
 
-The algorithm is not highly scalable, as it requires multiple nearest neighbor
-searches during the execution of the algorithm. The algorithm is guaranteed to
-converge, however the algorithm will stop iterating when the change in centroids
-is small.
+这个算法自动设定类别的数目，但需要一个参数 ``bandwidth`` 来设定搜寻的范围。这个参数可以人为设定，也可以通过函数 ``estimate_bandwidth`` 进行估计（当没有设定时会自动计算）。
 
-Labelling a new sample is performed by finding the nearest centroid for a
-given sample.
+这个算法的扩展能力不大，因为其需要寻找最近邻。这个算法一定会收敛。但算法一般会在中心变化不大的时候自动停止。
 
+一个新样本的分类是寻找距离最近的中心。
 
 .. figure:: ../auto_examples/cluster/images/plot_mean_shift_001.png
    :target: ../auto_examples/cluster/plot_mean_shift.html
@@ -366,12 +254,12 @@ given sample.
    :scale: 50
 
 
-.. topic:: Examples:
+.. topic:: 示例:
 
  * :ref:`example_cluster_plot_mean_shift.py`: Mean Shift clustering
    on a synthetic 2D datasets with 3 classes.
 
-.. topic:: References:
+.. topic:: 参考:
 
  * `"Mean shift: A robust approach toward feature space analysis."
    <http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.76.8968&rep=rep1&type=pdf>`_
@@ -380,16 +268,12 @@ given sample.
 
 .. _spectral_clustering:
 
-Spectral clustering
+谱聚类
 ===================
 
-:class:`SpectralClustering` does a low-dimension embedding of the
-affinity matrix between samples, followed by a KMeans in the low
-dimensional space. It is especially efficient if the affinity matrix is
-sparse and the `pyamg <http://pyamg.org/>`_ module is installed.
-SpectralClustering requires the number of clusters to be specified. It
-works well for a small number of clusters but is not advised when using
-many clusters.
+:class:`SpectralClustering` 首先将样本间的仿射矩阵嵌入到低维，再对其进行k-平均分类。当仿射矩阵比较稀疏且有安装 `pyamg <http://pyamg.org/>`_ 时，计算很有效率。谱聚类需要给定类别的数目。当类别数目比较小的时候比较有效，但是不建议针对很多分类的情况。
+
+对于两个类别，其旨在解决
 
 For two clusters, it solves a convex relaxation of the `normalised
 cuts <http://www.cs.berkeley.edu/~malik/papers/SM-ncut.pdf>`_ problem on
@@ -458,7 +342,7 @@ geometrical shape.
 =====================================  =====================================
 
 
-.. topic:: References:
+.. topic:: 参考:
 
  * `"A Tutorial on Spectral Clustering"
    <http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.165.9323>`_
@@ -479,24 +363,15 @@ geometrical shape.
 
 .. _hierarchical_clustering:
 
-Hierarchical clustering
+等级聚类
 =======================
 
-Hierarchical clustering is a general family of clustering algorithms that
-build nested clusters by merging or splitting them successively. This
-hierarchy of clusters is represented as a tree (or dendrogram). The root of the
-tree is the unique cluster that gathers all the samples, the leaves being the
-clusters with only one sample. See the `Wikipedia page
-<http://en.wikipedia.org/wiki/Hierarchical_clustering>`_ for more details.
+等级聚类（Hierarchical clustering）是一类聚类算法，其通过不断的合并和分割来构建嵌套的类别。这个类别的等级结构可以表示为树结构（或者dendrogram）。树的树根是一个包含所有样本的群，而叶节点是包含一个取样的类别。更多信息参考 `Wikipedia page
+<http://en.wikipedia.org/wiki/Hierarchical_clustering>` 。
 
-The :class:`AgglomerativeClustering` object performs a hierarchical clustering
-using a bottom up approach: each observation starts in its own cluster, and
-clusters are successively merged together. The linkage criteria determines the
-metric used for the merge strategy:
+:class:`AgglomerativeClustering` 通过自下而上的方式构建等级聚类：每一个取样首先是自己独立的类别，然后类别不断的合并。合并的策略取决于以下的链接条件：
 
-- **Ward** minimizes the sum of squared differences within all clusters. It is a
-  variance-minimizing approach and in this sense is similar to the k-means
-  objective function but tackled with an agglomerative hierarchical
+- **Ward** 最小化所有类别内的方差和。这是一个最小化方差的过程，因此和k-平均方法类似。ith an agglomerative hierarchical
   approach.
 - **Maximum** or **complete linkage** minimizes the maximum distance between
   observations of pairs of clusters.
