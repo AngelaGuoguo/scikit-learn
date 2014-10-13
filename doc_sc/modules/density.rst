@@ -1,28 +1,18 @@
 .. _density_estimation:
 
 ==================
-Density Estimation
+密度估计
 ==================
 .. sectionauthor:: Jake Vanderplas <vanderplas@astro.washington.edu>
 
-Density estimation walks the line between unsupervised learning, feature
-engineering, and data modeling.  Some of the most popular and useful
-density estimation techniques are mixture models such as
-Gaussian Mixtures (:class:`sklearn.mixture.GMM`), and neighbor-based
-approaches such as the kernel density estimate
-(:class:`sklearn.neighbors.KernelDensity`).
-Gaussian Mixtures are discussed more fully in the context of
-:ref:`clustering <clustering>`, because the technique is also useful as
-an unsupervised clustering scheme.
+密度估计介于非监督学习，特征构造和数据建模之间。其中比较著名且有效的方法有混合模型（如高斯混合 :class:`sklearn.mixture.GMM` ）和近邻方法（如核密度统计 :class:`sklearn.neighbors.KernelDensity` ）。高斯混合模型在 :ref:`聚类 <clustering>` 中有详细的介绍。
 
-Density estimation is a very simple concept, and most people are already
-familiar with one common density estimation technique: the histogram.
+密度估计的概念比较简单，而且大多数人都熟悉最常用的统计方法：柱状图。m.
 
-Density Estimation: Histograms
+密度统计：柱状图
 ==============================
-A histogram is a simple visualization of data where bins are defined, and the
-number of data points within each bin is tallied.  An example of a histogram
-can be seen in the upper-left panel of the following figure:
+
+柱状图是一个简单的数据可视化。其中每个柱代表数据点在其中的数目。下图的座上部分为柱状图的示例：
 
 .. |hist_to_kde| image:: ../auto_examples/neighbors/images/plot_kde_1d_001.png
    :target: ../auto_examples/neighbors/plot_kde_1d.html
@@ -30,43 +20,19 @@ can be seen in the upper-left panel of the following figure:
 
 .. centered:: |hist_to_kde|
 
-A major problem with histograms, however, is that the choice of binning can
-have a disproportionate effect on the resulting visualization.  Consider the
-upper-right panel of the above figure.  It shows a histogram over the same
-data, with the bins shifted right.  The results of the two visualizations look
-entirely different, and might lead to different interpretations of the data.
+柱状图的一个主要问题是区间的选择会有不良的影响。譬如上图的右上部分是对同样数据的重新统计，每一个区间向右移动了。其结果与左边的迥然不同，会导致对数据的不同理解。
 
-Intuitively, one can also think of a histogram as a stack of blocks, one block
-per point.  By stacking the blocks in the appropriate grid space, we recover
-the histogram.  But what if, instead of stacking the blocks on a regular grid,
-we center each block on the point it represents, and sum the total height at
-each location?  This idea leads to the lower-left visualization.  It is perhaps
-not as clean as a histogram, but the fact that the data drive the block
-locations mean that it is a much better representation of the underlying
-data.
+直观上，我们可以认为柱状图是一些区块的叠加。通过在合适的网格中叠加，我们可以重绘柱状图。然而如果我们将每个数据作为处在该位置的一个区块，直接叠加全部区块的高度，那么我们可以得到左下的表达。虽然其不像是柱状图，但是由于区块的位置由数据决定，其对数据的表达更准确。
 
-This visualization is an example of a *kernel density estimation*, in this case
-with a top-hat kernel (i.e. a square block at each point).  We can recover a
-smoother distribution by using a smoother kernel.  The bottom-right plot shows
-a Gaussian kernel density estimate, in which each point contributes a Gaussian
-curve to the total.  The result is a smooth density estimate which is derived
-from the data, and functions as a powerful non-parametric model of the
-distribution of points.
+这个例子是一个 *核密度统计* 的示例。我们可以通过光滑的核心函数来平滑结果。譬如右下的图展示了Gaussian和密度统计，其中每个数据贡献一个高斯曲线来叠加。一in次结果是一个光滑的密度统计，而其中函数可以作为一个强大的非参数模型来刻画数据分布。
 
 .. _kernel_density:
 
-Kernel Density Estimation
+核密度统计
 =========================
-Kernel density estimation in scikit-learn is implemented in the
-:class:`sklearn.neighbors.KernelDensity` estimator, which uses the
-Ball Tree or KD Tree for efficient queries (see :ref:`neighbors` for
-a discussion of these).  Though the above example
-uses a 1D data set for simplicity, kernel density estimation can be
-performed in any number of dimensions, though in practice the curse of
-dimensionality causes its performance to degrade in high dimensions.
+scikit-learn中的核密度统计是采用 :class:`sklearn.neighbors.KernelDensity` 。其中球树或者KD树被用作有效的检索（参见 :ref:`neighbors` ）。尽管以上的例子用到的 1维数据作为简单的例子，核密度统计可以应用到任意维中。但是高维数据会降低计算的效率。
 
-In the following figure, 100 points are drawn from a bimodal distribution,
-and the kernel density estimates are shown for three choices of kernels:
+在以下的图中，通过双峰分布产生100个数据点，而核密度分析采用了三个不同的选择：
 
 .. |kde_1d_distribution| image:: ../auto_examples/neighbors/images/plot_kde_1d_003.png
    :target: ../auto_examples/neighbors/plot_kde_1d.html
@@ -74,9 +40,7 @@ and the kernel density estimates are shown for three choices of kernels:
 
 .. centered:: |kde_1d_distribution|
 
-It's clear how the kernel shape affects the smoothness of the resulting
-distribution.  The scikit-learn kernel density estimator can be used as
-follows:
+这个可以很直白的展示不同核对结果的影响。scikit-learn的使用方法如下::
 
    >>> from sklearn.neighbors.kde import KernelDensity
    >>> import numpy as np
@@ -86,22 +50,14 @@ follows:
    array([-0.41075698, -0.41075698, -0.41076071, -0.41075698, -0.41075698,
           -0.41076071])
 
-Here we have used ``kernel='gaussian'``, as seen above.
-Mathematically, a kernel is a positive function :math:`K(x;h)`
-which is controlled by the bandwidth parameter :math:`h`.
-Given this kernel form, the density estimate at a point :math:`y` within
-a group of points :math:`x_i; i=1\cdots N` is given by:
+其中我们采用 ``kernel='gaussian'`` 。 数学上讲，核是一个正的函数 :math:`K(x;h)` ，其中控制带宽的参数 :math:`h` 。给定核的形式，在每一个点 :math:`y` 处，密度统计通过若干近邻的点 :math:`x_i; i=1\cdots N` 完成：
 
 .. math::
     \rho_K(y) = \sum_{i=1}^{N} K((y - x_i) / h)
 
-The bandwidth here acts as a smoothing parameter, controlling the tradeoff
-between bias and variance in the result.  A large bandwidth leads to a very
-smooth (i.e. high-bias) density distribution.  A small bandwidth leads
-to an unsmooth (i.e. high-variance) density distribution.
+其中带宽的作用是一个平滑参数，控制偏差和方差的大小。一个大的带宽会让曲线很平滑（大的偏差）。一个小的带宽会导致曲线不平滑（大的方差）。
 
-:class:`sklearn.neighbors.KernelDensity` implements several common kernel
-forms, which are shown in the following figure:
+:class:`sklearn.neighbors.KernelDensity`采用如下常见的核：
 
 .. |kde_kernels| image:: ../auto_examples/neighbors/images/plot_kde_1d_002.png
    :target: ../auto_examples/neighbors/plot_kde_1d.html
@@ -109,41 +65,33 @@ forms, which are shown in the following figure:
 
 .. centered:: |kde_kernels|
 
-The form of these kernels is as follows:
+以上核的数学形式为：
 
-* Gaussian kernel (``kernel = 'gaussian'``)
+* 高斯核 (``kernel = 'gaussian'``)
   
   :math:`K(x; h) \propto \exp(- \frac{x^2}{2h^2} )`
 
-* Tophat kernel (``kernel = 'tophat'``)
+* Tophat核 (``kernel = 'tophat'``)
 
   :math:`K(x; h) \propto 1` if :math:`x < h`
 
-* Epanechnikov kernel (``kernel = 'epanechnikov'``)
+* Epanechnikov核 (``kernel = 'epanechnikov'``)
   
   :math:`K(x; h) \propto 1 - \frac{x^2}{h^2}`
 
-* Exponential kernel (``kernel = 'exponential'``)
+* 指数核 (``kernel = 'exponential'``)
 
   :math:`K(x; h) \propto \exp(-x/h)`
 
-* Linear kernel (``kernel = 'linear'``)
+* 线性核 (``kernel = 'linear'``)
 
   :math:`K(x; h) \propto 1 - x/h` if :math:`x < h`
 
-* Cosine kernel (``kernel = 'cosine'``)
+* 余弦核 (``kernel = 'cosine'``)
 
   :math:`K(x; h) \propto \cos(\frac{\pi x}{2h})` if :math:`x < h`
 
-The kernel density estimator can be used with any of the valid distance
-metrics (see :class:`sklearn.neighbors.DistanceMetric` for a list of available metrics), though
-the results are properly normalized only for the Euclidean metric.  One
-particularly useful metric is the
-`Haversine distance <http://en.wikipedia.org/wiki/Haversine_formula>`_
-which measures the angular distance between points on a sphere.  Here
-is an example of using a kernel density estimate for a visualization
-of geospatial data, in this case the distribution of observations of two
-different species on the South American continent:
+核密度统计可以采用任何正确的距离矩阵（参见 :class:`sklearn.neighbors.DistanceMetric` ），但结果只有当采用欧几里得空间的时候是正确标准化的。其中比较有用的核是 `Haversine distance <http://en.wikipedia.org/wiki/Haversine_formula>`_ 其测量数据点在球面上距离。这对于可视化地理信息尤为重要。下图展示了两个不同物种在南美洲大陆的分布：
 
 .. |species_kde| image:: ../auto_examples/neighbors/images/plot_species_kde_001.png
    :target: ../auto_examples/neighbors/plot_species_kde.html
@@ -151,12 +99,7 @@ different species on the South American continent:
 
 .. centered:: |species_kde|
 
-One other useful application of kernel density estimation is to learn a
-non-parametric generative model of a dataset in order to efficiently
-draw new samples from this generative model.
-Here is an example of using this process to
-create a new set of hand-written digits, using a Gaussian kernel learned
-on a PCA projection of the data:
+核密度统计的另一个应用是学习非参数的概括模型，以此来更有效的提取新样本。以下是一个采用此过程生成新的手写数字的示例。其中高斯核应用于数据的PCA投影：
 
 .. |digits_kde| image:: ../auto_examples/neighbors/images/plot_digits_kde_sampling_001.png
    :target: ../auto_examples/neighbors/plot_digits_kde_sampling.html
@@ -164,10 +107,9 @@ on a PCA projection of the data:
 
 .. centered:: |digits_kde|
 
-The "new" data consists of linear combinations of the input data, with weights
-probabilistically drawn given the KDE model.
+这些“新”数据是原有数据的线性组合，每个的权重是有KDE模型决定。
 
-.. topic:: Examples:
+.. topic:: 示例
 
   * :ref:`example_neighbors_plot_kde_1d.py`: computation of simple kernel
     density estimates in one dimension.

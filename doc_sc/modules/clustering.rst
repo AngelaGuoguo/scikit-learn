@@ -94,11 +94,9 @@ K-平均
 
 :class:`KMeans` 算法将数据分为n组，每组的方差相同。这个过程通过最小化 `惯性 <inertia>` 也就是组内平方和来实现。这个算法需要给定组分数目。它可以很容易的扩展到大量样本，也被应用到众多领域。
 
-k-平均算法将 :math:`N` 个样本 :math:`X` 分配到 :math:`K` 不相接的类别 :math:`C` 中，每一个类别通过其中样本的平均值 :math:`\mu_j` 来表征。这些平均值通常成为类别的中心（"centroids"）。注意，它们通常并不是X中的数据点，尽管它们处在同一个空间。k-平均算法旨在选择中心来降低惯性::
+k-平均算法将 :math:`N` 个样本 :math:`X` 分配到 :math:`K` 不相接的类别 :math:`C` 中，每一个类别通过其中样本的平均值 :math:`\mu_j` 来表征。这些平均值通常成为类别的中心（"centroids"）。注意，它们通常并不是X中的数据点，尽管它们处在同一个空间。k-平均算法旨在选择中心来降低惯性：
 
-.. math:: 
-
-   \sum_{i=0}^{n}\min_{\mu_j \in C}(||x_j - \mu_i||^2)
+.. math::    \sum_{i=0}^{n}\min_{\mu_j \in C}(||x_j - \mu_i||^2)
 
 惯性可以被视作一个类别的一致性。但是其有如下缺点：
 
@@ -462,7 +460,7 @@ Average和complete 连接可以与不同的距离定义相结合（或仿射）�
     :target: ../auto_examples/cluster/plot_agglomerative_clustering_metrics.html
     :scale: 32
 
-.. topic:: Examples:
+.. topic:: 示例
 
  * :ref:`example_cluster_plot_agglomerative_clustering_metrics.py`
 
@@ -587,11 +585,9 @@ DBSCAN
 
 - :math:`b` 在C与K中分别处于不同分类的数目
 
-直接的芮氏指标是::
+直接的芮氏指标是：
 
-.. math:: 
-
-   \text{RI} = \frac{a + b}{C_2^{n_{samples}}}
+.. math::    \text{RI} = \frac{a + b}{C_2^{n_{samples}}}
 
 其中  :math:`C_2^{n_{samples}}` 数据中所有可能组合的数目。
 
@@ -856,7 +852,7 @@ DBSCAN
 
 **类别的条件熵** :math:`H(K|C)` 以及 **类别的熵** :math:`H(K)` 的定义式对称的。
 
-Rosenberg and Hirschberg 进一步定义 **一致性和完整性的调和平均** 为 **V指标**:: 
+Rosenberg and Hirschberg 进一步定义 **一致性和完整性的调和平均** 为 **V指标** ：
 
 .. math:: v = 2 \cdot \frac{h \cdot c}{h + c}
 
@@ -878,13 +874,13 @@ Silhouette 系数
 表达和用法
 ~~~~~~~~~~~~~~~~~~~~~~
 
-如果不知道真实的分类，那么就只能靠模型本身的特征。Silhouette系数（ :func:`sklearn.metrics.silhouette_score` ）是一个这样的评价系统。一个高的分数对应着更好的分类。对于每一个样本，其包含两个分数::
+如果不知道真实的分类，那么就只能靠模型本身的特征。Silhouette系数（ :func:`sklearn.metrics.silhouette_score` ）是一个这样的评价系统。一个高的分数对应着更好的分类。对于每一个样本，其包含两个分数：
 
 - **a**: 一个取样到该类别中其他取样的平均距离
 
 - **b**: 一个取样到与该类别 *最近的类别* 中取样的平均距离
 
-Silhoeutte系数 *s*  则是::
+Silhoeutte系数 *s*  则是：
 
 .. math:: s = \frac{b - a}{\max(a, b)}
 
