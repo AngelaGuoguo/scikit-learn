@@ -4,7 +4,7 @@
 .. _manifold:
 
 =================
-Manifold learning
+流形学习
 =================
 
 .. rst-class:: quote
@@ -25,26 +25,15 @@ Manifold learning
    :align: center
    :scale: 60
 
-Manifold learning is an approach to non-linear dimensionality reduction.
-Algorithms for this task are based on the idea that the dimensionality of
-many data sets is only artificially high.
+流行学习是一种非线性维度降低的方法。其算法的想法是很多数据的维度只是虚假的高。
 
 
-Introduction
+引言
 ============
 
-High-dimensional datasets can be very difficult to visualize.  While data
-in two or three dimensions can be plotted to show the inherent
-structure of the data, equivalent high-dimensional plots are much less
-intuitive.  To aid visualization of the structure of a dataset, the
-dimension must be reduced in some way.
+高维度的数据往往难于可视化。对于二维或者三维的数据，很容易通过绘图来表述其内在的结构，而高维数据很难如此直接。为了能够进行可视化，我们往往需要将维度降低。
 
-The simplest way to accomplish this dimensionality reduction is by taking
-a random projection of the data.  Though this allows some degree of
-visualization of the data structure, the randomness of the choice leaves much
-to be desired.  In a random projection, it is likely that the more
-interesting structure within the data will be lost.
-
+最简单的方法是将数据随机投影。尽管这个可以一定程度上的将数据可视化，但是随机选择会丧失很多细节。
 
 .. |digits_img| image:: ../auto_examples/manifold/images/plot_lle_digits_001.png
     :target: ../auto_examples/manifold/plot_lle_digits.html
@@ -56,15 +45,7 @@ interesting structure within the data will be lost.
 
 .. centered:: |digits_img| |projected_img|
 
-
-To address this concern, a number of supervised and unsupervised linear
-dimensionality reduction frameworks have been designed, such as Principal
-Component Analysis (PCA), Independent Component Analysis, Linear 
-Discriminant Analysis, and others.  These algorithms define specific 
-rubrics to choose an "interesting" linear projection of the data.
-These methods can be powerful, but often miss important non-linear 
-structure in the data.
-
+为了克服这个问题，设计了很多监督的和非监督的线性维度降低方案，如主成分分析（Principal Component Analysis PCA），独立分量分析（Independent Component Analysis），线性判别分析（Linear Discriminant Analysis）以及其他。这些方法都是通过选择一个“有意义”的线性投影方向。这些方法很有效，但是常常会丢失非线性信息。
 
 .. |PCA_img| image:: ../auto_examples/manifold/images/plot_lle_digits_003.png
     :target: ../auto_examples/manifold/plot_lle_digits.html
@@ -76,14 +57,9 @@ structure in the data.
 
 .. centered:: |PCA_img| |LDA_img|
 
-Manifold Learning can be thought of as an attempt to generalize linear
-frameworks like PCA to be sensitive to non-linear structure in data. Though
-supervised variants exist, the typical manifold learning problem is
-unsupervised: it learns the high-dimensional structure of the data
-from the data itself, without the use of predetermined classifications.
+流形学习（Manifold Learning）可以视作对PCA方法的概括，来进一步描述数据中的非线性特征。虽然有监督学习的方法，但是典型的流形学习问题是非监督的：其需要从高维数据中自行找到结构，而不依赖于外在的分类信息。
 
-
-.. topic:: Examples:
+.. topic:: 示例
 
     * See :ref:`example_manifold_plot_lle_digits.py` for an example of
       dimensionality reduction on handwritten digits.
@@ -91,209 +67,152 @@ from the data itself, without the use of predetermined classifications.
     * See :ref:`example_manifold_plot_compare_methods.py` for an example of
       dimensionality reduction on a toy "S-curve" dataset.
 
-The manifold learning implementations available in sklearn are
-summarized below
+以下介绍在sklearn中采用的流形学习方法。
 
 .. _isomap:
 
-Isomap
-======
+等距映射 Isomap
+==============
 
-One of the earliest approaches to manifold learning is the Isomap
-algorithm, short for Isometric Mapping.  Isomap can be viewed as an
-extension of Multi-dimensional Scaling (MDS) or Kernel PCA.
-Isomap seeks a lower-dimensional embedding which maintains geodesic
-distances between all points.  Isomap can be performed with the object
-:class:`Isomap`.
+最早采用的流行学习方法是等距映射（Isometric Mapping Isomap）。Isomap可以视作是多维比例（Multi-dimensional Scaling MDS）或者核PCA的拓展。Isomap寻找一个更低维度的嵌套，同时保持各个点间的距离一致。Isomap通过 :class:`Isomap` 实现。
 
 .. figure:: ../auto_examples/manifold/images/plot_lle_digits_005.png
    :target: ../auto_examples/manifold/plot_lle_digits.html
    :align: center
    :scale: 50
 
-Complexity
+计算复杂性
 ----------
-The Isomap algorithm comprises three stages:
+Isomap算法有三步：
 
-1. **Nearest neighbor search.**  Isomap uses
-   :class:`sklearn.neighbors.BallTree` for efficient neighbor search.
-   The cost is approximately :math:`O[D \log(k) N \log(N)]`, for :math:`k`
-   nearest neighbors of :math:`N` points in :math:`D` dimensions.
+1. **最近邻搜索**  Isomap 通过 :class:`sklearn.neighbors.BallTree` 来进行快速的近邻搜索。其计算复杂度为 :math:`O[D \log(k) N \log(N)]` ，其中 :math:`k` 为近邻数目， :math:`N` 为样本数， :math:`D` 为维度。
 
-2. **Shortest-path graph search.**  The most efficient known algorithms
-   for this are *Dijkstra's Algorithm*, which is approximately 
-   :math:`O[N^2(k + \log(N))]`, or the *Floyd-Warshall algorithm*, which
-   is :math:`O[N^3]`.  The algorithm can be selected by the user with
-   the ``path_method`` keyword of ``Isomap``.  If unspecified, the code
-   attempts to choose the best algorithm for the input data.
+2. **搜索最近路线图** 最有效的算法是 *Dijkstra's Algorithm* ，其计算复杂度为 :math:`O[N^2(k + \log(N))]` ，或者 *Floyd-Warshall algorithm* ，复杂度为 :math:`O[N^3]` 。用户可以通过调节参数  ``Isomap`` 中的 ``path_method`` 。如果没有设置，程序尝试采用最快速的方法。
 
-3. **Partial eigenvalue decomposition.**  The embedding is encoded in the 
-   eigenvectors corresponding to the :math:`d` largest eigenvalues of the
-   :math:`N \times N` isomap kernel.  For a dense solver, the cost is
-   approximately :math:`O[d N^2]`.  This cost can often be improved using
-   the ``ARPACK`` solver.  The eigensolver can be specified by the user
-   with the ``path_method`` keyword of ``Isomap``.  If unspecified, the
-   code attempts to choose the best algorithm for the input data.
+3. **部分本征值分解** 嵌套是通过对应于  :math:`N \times N`  等距映射矩阵最大的 :math:`d` 个本征值的本征向量代表的。对于一个密集矩阵，计算复杂度为 :math:`O[d N^2]` ，通过 ``ARPACK`` 求解。可以通过 ``Isomap`` 的参数 ``eigen_solver`` 求解。如果没有给定，程序自动选择最佳解决方案。
 
-The overall complexity of Isomap is
+Isomap的总体复杂度为
 :math:`O[D \log(k) N \log(N)] + O[N^2(k + \log(N))] + O[d N^2]`.
 
-* :math:`N` : number of training data points
-* :math:`D` : input dimension
-* :math:`k` : number of nearest neighbors
-* :math:`d` : output dimension
+* :math:`N` : 训练取样数目
+* :math:`D` : 输入维度
+* :math:`k` : 最近邻数目
+* :math:`d` : 输出维度
 
-.. topic:: References:
+.. topic:: 参考：
 
    * `"A global geometric framework for nonlinear dimensionality reduction"
      <http://www.sciencemag.org/content/290/5500/2319.full>`_
      Tenenbaum, J.B.; De Silva, V.; & Langford, J.C.  Science 290 (5500)
 
 
-Locally Linear Embedding
+局域线性嵌套
 ========================
 
-Locally linear embedding (LLE) seeks a lower-dimensional projection of the data
-which preserves distances within local neighborhoods.  It can be thought
-of as a series of local Principal Component Analyses which are globally
-compared to find the best non-linear embedding.
+局域线性嵌套（Locally linear embedding LLE）寻找一个更低维度的投影，并且保持其局域的近邻。其可以视作一系列局域的PCA再合并为最佳的非线性嵌套。
 
-Locally linear embedding can be performed with function
-:func:`locally_linear_embedding` or its object-oriented counterpart
-:class:`LocallyLinearEmbedding`.
+局域线性嵌套通过函数 :func:`locally_linear_embedding` 或者类 :class:`LocallyLinearEmbedding` 实现。
 
 .. figure:: ../auto_examples/manifold/images/plot_lle_digits_006.png
    :target: ../auto_examples/manifold/plot_lle_digits.html
    :align: center
    :scale: 50
 
-Complexity
+计算复杂性
 ----------
 
-The standard LLE algorithm comprises three stages:
+标准的LLE采用三步：
 
-1. **Nearest Neighbors Search**.  See discussion under Isomap above.
+1. **最近邻搜索** 参见 :ref:`Isomap <isomap>` 
 
-2. **Weight Matrix Construction**. :math:`O[D N k^3]`.
-   The construction of the LLE weight matrix involves the solution of a
-   :math:`k \times k` linear equation for each of the :math:`N` local
-   neighborhoods
+2. **构建权重矩阵**. :math:`O[D N k^3]` 。LEE权重矩阵的构建需要对 :math:`N` 个近邻解决 :math:`k \times k` 的线性方程。
 
-3. **Partial Eigenvalue Decomposition**. See discussion under Isomap above.
+3. **部分本征值分解** 参见 :ref:`Isomap <isomap>` 
 
-The overall complexity of standard LLE is
+标准LLE的计算复杂度为
 :math:`O[D \log(k) N \log(N)] + O[D N k^3] + O[d N^2]`.
 
-* :math:`N` : number of training data points
-* :math:`D` : input dimension
-* :math:`k` : number of nearest neighbors
-* :math:`d` : output dimension
+* :math:`N` : 训练取样数目
+* :math:`D` : 输入维度
+* :math:`k` : 最近邻数目
+* :math:`d` : 输出维度
 
-.. topic:: References:
+.. topic:: 参考
    
    * `"Nonlinear dimensionality reduction by locally linear embedding"
      <http://www.sciencemag.org/content/290/5500/2323.full>`_
      Roweis, S. & Saul, L.  Science 290:2323 (2000)
 
 
-Modified Locally Linear Embedding
+改进的局域线性嵌套
 =================================
 
-One well-known issue with LLE is the regularization problem.  When the number
-of neighbors is greater than the number of input dimensions, the matrix
-defining each local neighborhood is rank-deficient.  To address this, standard
-LLE applies an arbitrary regularization parameter :math:`r`, which is chosen
-relative to the trace of the local weight matrix.  Though it can be shown
-formally that as :math:`r \to 0`, the solution converges to the desired
-embedding, there is no guarantee that the optimal solution will be found
-for :math:`r > 0`.  This problem manifests itself in embeddings which distort
-the underlying geometry of the manifold.
+LLE的一个问题在于无法空寂模型复杂度。当邻居的数目大于数据的维度的时候，描述近邻的矩阵秩不足。对此，标准的LLE采用了一个任意的复杂度参数 :math:`r` ，其根据矩阵的迹。尽管当 :math:`r \to 0` 时，结果收敛到需要的嵌套。但是这不保证当 :math:`r > 0` 一定会收敛到最佳解。这个问题会扰动流形的几何结构。
 
-One method to address the regularization problem is to use multiple weight
-vectors in each neighborhood.  This is the essence of *modified locally
-linear embedding* (MLLE).  MLLE can be  performed with function
-:func:`locally_linear_embedding` or its object-oriented counterpart
-:class:`LocallyLinearEmbedding`, with the keyword ``method = 'modified'``.
-It requires ``n_neighbors > n_components``.
+一个解决这个问题的方法是对每个近邻采用多重的权重向量。这边是 *改进的局域线性嵌套（modified locally linear embedding MLLE）* 的核心。MLLE可以通过函数 :func:`locally_linear_embedding` 或 :class:`LocallyLinearEmbedding` 类中的参数 ``method = 'modified'`` 启用。其要求 ``n_neighbors > n_components`` 。
 
 .. figure:: ../auto_examples/manifold/images/plot_lle_digits_007.png
    :target: ../auto_examples/manifold/plot_lle_digits.html
    :align: center
    :scale: 50
    
-Complexity
+计算复杂度
 ----------
 
-The MLLE algorithm comprises three stages:
+计算复杂度涉及三步：
 
-1. **Nearest Neighbors Search**.  Same as standard LLE
+1. **最近邻搜索** 参见 :ref:`Isomap <isomap>`
 
-2. **Weight Matrix Construction**. Approximately
-   :math:`O[D N k^3] + O[N (k-D) k^2]`.  The first term is exactly equivalent
-   to that of standard LLE.  The second term has to do with constructing the
-   weight matrix from multiple weights.  In practice, the added cost of 
-   constructing the MLLE weight matrix is relatively small compared to the
-   cost of steps 1 and 3.
+2. **构建权重矩阵** 。大致为 :math:`O[D N k^3] + O[N (k-D) k^2]` 。前一部分于LLE一致。第二部分是构建权重矩阵时的不同权重的影响。实际中，这部分额外的计算相对于其他三步来讲很小。
 
-3. **Partial Eigenvalue Decomposition**. Same as standard LLE
+3. **部分本征值分解** 参见 :ref:`Isomap <isomap>`
 
-The overall complexity of MLLE is
+MLLE的计算复杂度为
 :math:`O[D \log(k) N \log(N)] + O[D N k^3] + O[N (k-D) k^2] + O[d N^2]`.
 
-* :math:`N` : number of training data points
-* :math:`D` : input dimension
-* :math:`k` : number of nearest neighbors
-* :math:`d` : output dimension
+* :math:`N` : 训练取样数目
+* :math:`D` : 输入维度
+* :math:`k` : 最近邻数目
+* :math:`d` : 输出维度
 
-.. topic:: References:
+.. topic:: 参考
      
    * `"MLLE: Modified Locally Linear Embedding Using Multiple Weights"
      <http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.70.382>`_
      Zhang, Z. & Wang, J.
 
 
-Hessian Eigenmapping
+Hessian本征映射
 ====================
 
-Hessian Eigenmapping (also known as Hessian-based LLE: HLLE) is another method
-of solving the regularization problem of LLE.  It revolves around a
-hessian-based quadratic form at each neighborhood which is used to recover
-the locally linear structure.  Though other implementations note its poor
-scaling with data size, ``sklearn`` implements some algorithmic
-improvements which make its cost comparable to that of other LLE variants
-for small output dimension.  HLLE can be  performed with function
-:func:`locally_linear_embedding` or its object-oriented counterpart
-:class:`LocallyLinearEmbedding`, with the keyword ``method = 'hessian'``.
-It requires ``n_neighbors > n_components * (n_components + 3) / 2``.
+Hessian本征映射是一个基于Hessian的LLE方法（HLLE）来解决模型复杂度的问题。其基于Hessian二项式来求解每个近邻的局域线性结构。尽管和其他方法比，其在大数据的情况下会效率低下，但 ``sklearn`` 采用一些算法来使其在输出维度低的时候与其他LLE的方法相当。HLLE可以通过函数 :func:`locally_linear_embedding` 或者
+:class:`LocallyLinearEmbedding` 类中的参数 ``method = 'hessian'`` 启用。其要求 ``n_neighbors > n_components * (n_components + 3) / 2`` 。
 
 .. figure:: ../auto_examples/manifold/images/plot_lle_digits_008.png
    :target: ../auto_examples/manifold/plot_lle_digits.html
    :align: center
    :scale: 50
    
-Complexity
+计算复杂度
 ----------
 
 The HLLE algorithm comprises three stages:
 
-1. **Nearest Neighbors Search**.  Same as standard LLE
+1. **最近邻搜索** 参见 :ref:`Isomap <isomap>`
 
-2. **Weight Matrix Construction**. Approximately
-   :math:`O[D N k^3] + O[N d^6]`.  The first term reflects a similar
-   cost to that of standard LLE.  The second term comes from a QR
-   decomposition of the local hessian estimator.
+2. **构建权重矩阵** 大致为 :math:`O[D N k^3] + O[N d^6]` 第一项与一般的LLE一致，第二部分是对局域Hessian估计的QR分解。
 
-3. **Partial Eigenvalue Decomposition**. Same as standard LLE
+3. **部分本征值分解** 参见 :ref:`Isomap <isomap>` 
 
-The overall complexity of standard HLLE is
+HLLE的计算复杂度为
 :math:`O[D \log(k) N \log(N)] + O[D N k^3] + O[N d^6] + O[d N^2]`.
 
-* :math:`N` : number of training data points
-* :math:`D` : input dimension
-* :math:`k` : number of nearest neighbors
-* :math:`d` : output dimension
+* :math:`N` : 训练取样数目
+* :math:`D` : 输入维度
+* :math:`k` : 最近邻数目
+* :math:`d` : 输出维度
 
-.. topic:: References:
+.. topic:: 参考
 
    * `"Hessian Eigenmaps: Locally linear embedding techniques for
      high-dimensional data" <http://www.pnas.org/content/100/10/5591>`_
@@ -301,44 +220,32 @@ The overall complexity of standard HLLE is
 
 .. _spectral_embedding:
 
-Spectral Embedding
+谱嵌套
 ====================
 
-Spectral Embedding (also known as Laplacian Eigenmaps) is one method
-to calculate non-linear embedding. It finds a low dimensional representation
-of the data using a spectral decomposition of the graph Laplacian.
-The graph generated can be considered as a discrete approximation of the 
-low dimensional manifold in the high dimensional space. Minimization of a 
-cost function based on the graph ensures that points close to each other on 
-the manifold are mapped close to each other in the low dimensional space, 
-preserving local distances. Spectral embedding can be  performed with the
-function :func:`spectral_embedding` or its object-oriented counterpart
-:class:`SpectralEmbedding`.
+谱嵌套（Spectral Embedding 或 Laplacian Eigenmaps）是计算非线性嵌套的方法。其对图拉普拉斯进行谱分解方法，来寻找一个数据的低维表征。其生成的图可被视作低维流形的在高维空间的近似。最小化成本函数来保证接近的样本在低维流形中依然与彼此接近，即保留局域距离。谱嵌套通过函数 :func:`spectral_embedding` 或者
+:class:`SpectralEmbedding` 类应用。
 
-Complexity
+计算复杂度
 ----------
 
-The Spectral Embedding algorithm comprises three stages:
+谱嵌套算法有三步：
 
-1. **Weighted Graph Construction**. Transform the raw input data into
-   graph representation using affinity (adjacency) matrix representation.
+1. **构建权重函数** 将数据通过仿射矩阵转换为图表达。
 
-2. **Graph Laplacian Construction**. unnormalized Graph Laplacian
-   is constructed as :math:`L = D - A` for and normalized one as
-   :math:`L = D^{-\frac{1}{2}} (D - A) D^{-\frac{1}{2}}`.  
+2. **构建图拉普拉斯** 非标准化的图拉普拉斯为 :math:`L = D - A` ，对于标准化的为 :math:`L = D^{-\frac{1}{2}} (D - A) D^{-\frac{1}{2}}` 。
 
-3. **Partial Eigenvalue Decomposition**. Eigenvalue decomposition is 
-   done on graph Laplacian
+3. **部分本征值分解** 对图拉普拉斯进行本征值分解。
 
-The overall complexity of spectral embedding is
+普嵌套的计算复杂度为
 :math:`O[D \log(k) N \log(N)] + O[D N k^3] + O[d N^2]`.
 
-* :math:`N` : number of training data points
-* :math:`D` : input dimension
-* :math:`k` : number of nearest neighbors
-* :math:`d` : output dimension
+* :math:`N` : 训练取样数目
+* :math:`D` : 输入维度
+* :math:`k` : 最近邻数目
+* :math:`d` : 输出维度
 
-.. topic:: References:
+.. topic:: 参考
 
    * `"Laplacian Eigenmaps for Dimensionality Reduction
      and Data Representation" 
@@ -346,45 +253,36 @@ The overall complexity of spectral embedding is
      M. Belkin, P. Niyogi, Neural Computation, June 2003; 15 (6):1373-1396
 
 
-Local Tangent Space Alignment
+局域切空间调整
 =============================
 
-Though not technically a variant of LLE, Local tangent space alignment (LTSA)
-is algorithmically similar enough to LLE that it can be put in this category.
-Rather than focusing on preserving neighborhood distances as in LLE, LTSA
-seeks to characterize the local geometry at each neighborhood via its
-tangent space, and performs a global optimization to align these local 
-tangent spaces to learn the embedding.  LTSA can be performed with function
-:func:`locally_linear_embedding` or its object-oriented counterpart
-:class:`LocallyLinearEmbedding`, with the keyword ``method = 'ltsa'``.
+尽管不是一个LLE算法，局域切空间调整（Local tangent space alignment LTSA）算法上和LLE归于一类。区别于保留近邻的距离，LTSA尝试通过近邻的切空间来刻画局域的集合，并作全局优化来学习空间的嵌套。LTSA通过函数 :func:`locally_linear_embedding` 或者 :class:`LocallyLinearEmbedding` 中的 ``method = 'ltsa'`` 进行应用。
 
 .. figure:: ../auto_examples/manifold/images/plot_lle_digits_009.png
    :target: ../auto_examples/manifold/plot_lle_digits.html
    :align: center
    :scale: 50
 
-Complexity
+计算复杂度
 ----------
 
-The LTSA algorithm comprises three stages:
+LTSA算法有三步：
 
-1. **Nearest Neighbors Search**.  Same as standard LLE
+1. **最近邻搜索** 参见 :ref:`Isomap <isomap>`
 
-2. **Weight Matrix Construction**. Approximately
-   :math:`O[D N k^3] + O[k^2 d]`.  The first term reflects a similar
-   cost to that of standard LLE.
+2. **构建权重矩阵** 大致为 :math:`O[D N k^3] + O[k^2 d]` 其中第一项为LLE的计算成本。
 
-3. **Partial Eigenvalue Decomposition**. Same as standard LLE
+3. **部分本征值分解** 参见 :ref:`Isomap <isomap>` 
 
 The overall complexity of standard LTSA is
 :math:`O[D \log(k) N \log(N)] + O[D N k^3] + O[k^2 d] + O[d N^2]`.
 
-* :math:`N` : number of training data points
-* :math:`D` : input dimension
-* :math:`k` : number of nearest neighbors
-* :math:`d` : output dimension
+* :math:`N` : 训练取样数目
+* :math:`D` : 输入维度
+* :math:`k` : 最近邻数目
+* :math:`d` : 输出维度
 
-.. topic:: References:
+.. topic:: 参考
 
    * `"Principal manifolds and nonlinear dimensionality reduction via
      tangent space alignment"
@@ -393,62 +291,37 @@ The overall complexity of standard LTSA is
 
 .. _multidimensional_scaling:
 
-Multi-dimensional Scaling (MDS)
+多维比例
 ===============================
 
-`Multidimensional scaling <http://en.wikipedia.org/wiki/Multidimensional_scaling>`_
-(:class:`MDS`) seeks a low-dimensional
-representation of the data in which the distances respect well the
-distances in the original high-dimensional space.
+`多维比例（Multidimensional scaling）<http://en.wikipedia.org/wiki/Multidimensional_scaling>`_
+(:class:`MDS`)尝试寻找一个低维空间来表示高维数据，同时距离不变。
 
-In general, is a technique used for analyzing similarity or
-dissimilarity data. :class:`MDS` attempts to model similarity or dissimilarity data as
-distances in a geometric spaces. The data can be ratings of similarity between
-objects, interaction frequencies of molecules, or trade indices between
-countries.
+一般而言，这个技术用来分析数据的相似性。 :class:`MDS` 尝试将数据的相似性表达为距离，譬如相似性，分子相互作用次数，或者国家间贸易指数。
 
-There exists two types of MDS algorithm: metric and non metric. In the
-scikit-learn, the class :class:`MDS` implements both. In Metric MDS, the input
-similarity matrix arises from a metric (and thus respects the triangular
-inequality), the distances between output two points are then set to be as
-close as possible to the similarity or dissimilarity data. In the non-metric
-version, the algorithms will try to preserve the order of the distances, and
-hence seek for a monotonic relationship between the distances in the embedded
-space and the similarities/dissimilarities.
+这里存在两类MDS算法：测度的或者非测度的。在scikit-learn中  :class:`MDS` 包含两种。在测度的MDS中要求数据的相似性符合距离测量（如三角不等式）。在非测度情况下，算法将保留距离的顺序，并在嵌套空间中，寻找距离间的单调关系。
 
 .. figure:: ../auto_examples/manifold/images/plot_lle_digits_010.png
    :target: ../auto_examples/manifold/plot_lle_digits.html
    :align: center
    :scale: 50
  
-
-Let :math:`S` be the similarity matrix, and :math:`X` the coordinates of the
-:math:`n` input points. Disparities :math:`\hat{d}_{ij}` are transformation of
-the similarities chosen in some optimal ways. The objective, called the
-stress, is then defined by :math:`sum_{i < j} d_{ij}(X) - \hat{d}_{ij}(X)`
+记 :math:`S` 为相似矩阵， :math:`X` 是 :math:`n` 输入样本的坐标，分离 :math:`\hat{d}_{ij}` 是转换相似性的最佳方式。那么目标，压力，则被定义为 :math:`sum_{i < j} d_{ij}(X) - \hat{d}_{ij}(X)` 。
 
 
-Metric MDS
+测度MDS
 ----------
 
-The simplest metric :class:`MDS` model, called *absolute MDS*, disparities are defined by
-:math:`\hat{d}_{ij} = S_{ij}`. With absolute MDS, the value :math:`S_{ij}`
-should then correspond exactly to the distance between point :math:`i` and
-:math:`j` in the embedding point.
+最简单的测度 :class:`MDS` 称之为 *绝对 MDS* ，分离定义为 :math:`\hat{d}_{ij} = S_{ij}` 。 在绝对MDS中 :math:`S_{ij}` 是点 :math:`i` 和 :math:`j` 在空间中的绝对距离。
 
-Most commonly, disparities are set to :math:`\hat{d}_{ij} = b S_{ij}`.
+通常，分离采用 :math:`\hat{d}_{ij} = b S_{ij}` 。
 
-Nonmetric MDS
+非测度MDS
 -------------
 
-Non metric :class:`MDS` focuses on the ordination of the data. If
-:math:`S_{ij} < S_{kl}`, then the embedding should enforce :math:`d_{ij} <
-d_{jk}`. A simple algorithm to enforce that is to use a monotonic regression
-of :math:`d_{ij}` on :math:`S_{ij}`, yielding disparities :math:`\hat{d}_{ij}`
-in the same order as :math:`S_{ij}`.
+非测度 :class:`MDS` 数据的协调性。如果 :math:`S_{ij} < S_{kl}` 那么嵌套中 :math:`d_{ij} < d_{jk}` 。一个简单的方法是采用对  :math:`S_{ij}`  单调回归 :math:`d_{ij}` 来得到分离 :math:`\hat{d}_{ij}` ，使其与 :math:`S_{ij}` 的顺序一致。
 
-A trivial solution to this problem is to set all the points on the origin. In
-order to avoid that, the disparities :math:`\hat{d}_{ij}` are normalized.
+一个无意义的解是所有的样本都在原点。规避这个问题的方法是对分离 :math:`\hat{d}_{ij}` 进行重整化。
 
 
 .. figure:: ../auto_examples/manifold/images/plot_mds_001.png
@@ -457,7 +330,7 @@ order to avoid that, the disparities :math:`\hat{d}_{ij}` are normalized.
    :scale: 60
   
 
-.. topic:: References:
+.. topic:: 参考：
 
   * `"Modern Multidimensional Scaling - Theory and Applications"
     <http://www.springer.com/statistics/social+sciences+%26+law/book/978-0-387-25150-9>`_
@@ -473,72 +346,34 @@ order to avoid that, the disparities :math:`\hat{d}_{ij}` are normalized.
 
 .. _t_sne:
 
-t-distributed Stochastic Neighbor Embedding (t-SNE)
+t分布随机近邻嵌套 (t-SNE)
 ===================================================
 
-t-SNE (:class:`TSNE`) converts affinities of data points to probabilities.
-The affinities in the original space are represented by Gaussian joint
-probabilities and the affinities in the embedded space are represented by
-Student's t-distributions. The Kullback-Leibler (KL) divergence of the joint
-probabilities in the original space and the embedded space will be minimized
-by gradient descent. Note that the KL divergence is not convex, i.e.
-multiple restarts with different initializations will end up in local minima
-of the KL divergence. Hence, it is sometimes useful to try different seeds
-and select the embedding with the lowest KL divergence.
-
+t-SNE (:class:`TSNE`) 将数据的仿射关系转化为概率。在原空间的近邻关系被表示为高斯概率，而在嵌套空间中被表达为学生t分布。这两者间的Kullback-Leibler (KL)分歧将被通过梯度下降的方法最小化。注意KL分析并不是凸的，即不同的初始化条件会产生不同的局域最小解。因此往往需要尝试不同的初始条件并从中选择最小的KL分歧。
 
 .. figure:: ../auto_examples/manifold/images/plot_lle_digits_013.png
    :target: ../auto_examples/manifold/plot_lle_digits.html
    :align: center
    :scale: 50
 
+t-SNE的主要目的是将高维数据可视化。因此当目标维度为二维或者三维时，其表现最好。
 
-The main purpose of t-SNE is visualization of high-dimensional data. Hence,
-it works best when the data will be embedded on two or three dimensions.
+优化KL分歧是一个复杂的过程。有三个参数来调节优化t-SNE：
 
-Optimizing the KL divergence can be a little bit tricky sometimes. There are
-three parameters that control the optimization of t-SNE:
+* 早期夸大系数
+* 学习效率
+* 步数的最大值
 
-* early exaggeration factor
-* learning rate
-* maximum number of iterations
+通常步数的最大值比较大，因此不需要额外的调节。那么优化过程主要分两步：早期夸大过程，和最终优化。早起夸大过程中，在原空间中的联合概率会被人为的增加。放大系数越大，会导致不同团间距离的增大。如果这个参数过大，那么KL分歧会增大。通常这个参数不需要调节。另一个关键的参数是学习效率。如果太低，那么优化会停留在局域最小值，而如果太大，那么KL分歧会在优化过程中增大。更多的技巧可以参见 Laurens van der Maaten's FAQ （见参考）。
 
-The maximum number of iterations is usually high enough and does not need
-any tuning. The optimization consists of two phases: the early exaggeration
-phase and the final optimization. During early exaggeration the joint
-probabilities in the original space will be artificially increased by
-multiplication with a given factor. Larger factors result in larger gaps
-between natural clusters in the data. If the factor is too high, the KL
-divergence could increase during this phase. Usually it does not have to be
-tuned. A critical parameter is the learning rate. If it is too low gradient
-descent will get stuck in a bad local minimum. If it is too high the KL
-divergence will increase during optimization. More tips can be found in
-Laurens van der Maaten's FAQ (see references).
+标准的t-SNE通常比其他流形学习算法慢。优化是困难的，梯度计算的复杂度为 :math:`O[d N^2]` 其中 :math:`d` 是输出维度的数目， :math:`N` 是样本数。
 
-Standard t-SNE that has been implemented here is usually much slower than
-other manifold learning algorithms. The optimization is quite difficult
-and the computation of the gradient is on :math:`O[d N^2]`, where :math:`d`
-is the number of output dimensions and :math:`N` is the number of samples.
+通常 Isomap, LLE 通常在于寻找一个连通的低维流形， t-SNE尝试在结构中找到不同的局域团。这个将样本分团的能力有利于分析数据中潜在的不同类别，如数字的数据。
 
-While Isomap, LLE and variants are best suited to unfold a single continuous
-low dimensional manifold, t-SNE will focus on the local structure of the data
-and will tend to extract clustered local groups of samples as highlighted on
-the S-curve example. This ability to group samples based on the local structure
-might be beneficial to visually disentangle a dataset that comprises several
-manifolds at once as is the case in the digits dataset.
-
-Also note that the digits labels roughly match the natural grouping found by
-t-SNE while the linear 2D projection of the PCA model yields a representation
-where label regions largely overlap. This is a strong clue that this data can
-be well separated by non linear methods that focus on the local structure (e.g.
-an SVM with a Gaussian RBF kernel). However, failing to visualize well
-separated homogeneously labeled groups with t-SNE in 2D does not necessarily
-implie that the data cannot be correctly classified by a supervised model. It
-might be the case that 2 dimensions are not enough low to accurately represents
-the internal structure of the data.
+另外注意，在数字类别的分类的例子中，t-SNE的分类与真实相近，而PCA的二维投影会导致类别区域的重叠。这是一个很好的例子来说明非线性方法的优势（如SVM配合高斯RBF核）。然而t-SNE无法在2D中区分并不意味着在监督学习模型中无法分析。很有可能是二维不足以准确的表达数据的结构。
 
 
-.. topic:: References:
+.. topic:: 参考
 
   * `"Visualizing High-Dimensional Data Using t-SNE"
     <http://jmlr.org/papers/v9/vandermaaten08a.html>`_
@@ -549,37 +384,18 @@ the internal structure of the data.
     <http://homepage.tudelft.nl/19j49/t-SNE.html>`_
     van der Maaten, L.J.P.
 
-Tips on practical use
+应用技巧
 =====================
 
-* Make sure the same scale is used over all features. Because manifold
-  learning methods are based on a nearest-neighbor search, the algorithm
-  may perform poorly otherwise.  See :ref:`StandardScaler <preprocessing_scaler>`
-  for convenient ways of scaling heterogeneous data.
+* 确保每一个特征都有相同的尺度。因为流形学习方法基于最近邻的搜索，而算法依赖于其距离。参见 :ref:`StandardScaler <preprocessing_scaler>` 来简便的完成这项任务。
 
-* The reconstruction error computed by each routine can be used to choose
-  the optimal output dimension.  For a :math:`d`-dimensional manifold embedded
-  in a :math:`D`-dimensional parameter space, the reconstruction error will
-  decrease as ``n_components`` is increased until ``n_components == d``.
+* 每个程序所计算的重构误差可以用来确定最佳的输出维度。 对于 :math:`d` 维流形嵌套到 :math:`D` 维的系数空间，重构误差会随着 ``n_components`` 的增加而降低，直至 ``n_components == d`` 。
 
-* Note that noisy data can "short-circuit" the manifold, in essence acting
-  as a bridge between parts of the manifold that would otherwise be
-  well-separated.  Manifold learning on noisy and/or incomplete data is
-  an active area of research.
+* 噪声大的数据可能会错误的连通不同的流形。目前这是一个热门的研究领域。
 
-* Certain input configurations can lead to singular weight matrices, for
-  example when more than two points in the dataset are identical, or when
-  the data is split into disjointed groups.  In this case, ``solver='arpack'``
-  will fail to find the null space.  The easiest way to address this is to
-  use ``solver='dense'`` which will work on a singular matrix, though it may
-  be very slow depending on the number of input points.  Alternatively, one
-  can attempt to understand the source of the singularity: if it is due to
-  disjoint sets, increasing ``n_neighbors`` may help.  If it is due to
-  identical points in the dataset, removing these points may help.
+* 部分输入会导致发散的权重矩阵。例如当有两个以上的取样完全一样的时候，或者数据可以被分割为两个独立的群。在这种情况， ``solver='arpack'`` 会失败。而采用 ``solver='dense'`` 可以得到正确的结果，尽管会变得很慢。此外，人们可以试图找到导致发散的问题，如果是分离的群，那么增加 ``n_neighbors`` 可以缓解。如果是因为有相同的数据点，那么移除它们。
 
 .. seealso::
 
-   :ref:`random_trees_embedding` can also be useful to derive non-linear
-   representations of feature space, also it does not perform
-   dimensionality reduction.
+   :ref:`random_trees_embedding` 同样可以找到特征空间的非线性结构，但是其不进行维度降低。
 
